@@ -1,7 +1,8 @@
-import React from 'react';
+import React, {useRef, useState} from 'react';
 import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import ListView from './ListView';
 import {font} from '../constants/font';
+
 export const SPACING = 14;
 
 export default function ArticleCard({
@@ -16,7 +17,9 @@ export default function ArticleCard({
       <ListView
         key={`list-view${index}`}
         item={item}
-        onPress={() => navigation.navigate('Details', {item})}
+        onPress={() => {
+          navigation.navigate('Details', {item});
+        }}
       />
     );
   };

@@ -11,6 +11,7 @@ import {Provider} from 'react-redux';
 import {persistor, store} from './src/components/redux/store';
 import {PersistGate} from 'redux-persist/integration/react';
 import * as Animatable from 'react-native-animatable';
+import {Provider as PaperProviders} from 'react-native-paper';
 
 export default function App({navigation}) {
   const [isAuth, setIsAuth] = React.useState(null);
@@ -39,20 +40,22 @@ export default function App({navigation}) {
   }
 
   return (
-    <Provider store={store}>
-      <PersistGate persistor={persistor} loading={null}>
-        <NavigationContainer>
-          <StatusBar barStyle="dark-content" backgroundColor={'#fff'} />
-          {isAuth ? (
-            <OnboardingNav />
-          ) : userToken ? (
-            <RegisterUser />
-          ) : (
-            <FormStack />
-          )}
-        </NavigationContainer>
-      </PersistGate>
-    </Provider>
+    <PaperProviders>
+      <Provider store={store}>
+        <PersistGate persistor={persistor} loading={null}>
+          <NavigationContainer>
+            <StatusBar barStyle="dark-content" backgroundColor={'#fff'} />
+            {isAuth ? (
+              <OnboardingNav />
+            ) : userToken ? (
+              <RegisterUser />
+            ) : (
+              <FormStack />
+            )}
+          </NavigationContainer>
+        </PersistGate>
+      </Provider>
+    </PaperProviders>
   );
 }
 

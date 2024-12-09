@@ -1,17 +1,17 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
   TouchableWithoutFeedback,
   TouchableOpacity,
-  ToastAndroid,
   Image,
   StyleSheet,
 } from 'react-native';
 import {EllipsisVerticalIcon} from 'react-native-heroicons/outline';
 import {font} from '../constants/font';
+import {Menu} from 'react-native-paper';
 
-export default function ListView({onPress, item}) {
+export default function ListView({onPress, item, onIconPress}) {
   return (
     <TouchableWithoutFeedback onPress={onPress}>
       <View style={styles.card}>
@@ -39,7 +39,9 @@ export default function ListView({onPress, item}) {
               </Text>
             </View>
 
-            <TouchableOpacity style={styles.moreOptionsBtn}>
+            <TouchableOpacity
+              style={styles.moreOptionsBtn}
+              onPress={onIconPress}>
               <EllipsisVerticalIcon size={20} color="#777" />
             </TouchableOpacity>
           </View>

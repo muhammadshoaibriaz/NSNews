@@ -40,11 +40,24 @@ export default function Signup() {
 
   // Form submission
   const submitForm = async () => {
-    if (!email || !password || !username) {
+    if (username.trim().length < 10) {
       ToastAndroid.show(
-        'Please fill out all required fields!',
+        'Username must be at least 10 characters long!',
         ToastAndroid.LONG,
       );
+      return;
+    }
+    if (!password || !confirmPassword) {
+      ToastAndroid.show('Please fill in all fields!', ToastAndroid.LONG);
+      return;
+    }
+    if (password !== confirmPassword) {
+      ToastAndroid.show('Passwords do not match!', ToastAndroid.LONG);
+      return;
+    }
+    if (!email.trim().includes('@')) {
+      ToastAndroid.show('Invalid email address!', ToastAndroid.LONG);
+      return;
     } else {
       navigation.navigate('Profile', {username, email, password});
     }

@@ -19,7 +19,7 @@ const FormStack = () => {
       <Stack.Screen name="Profile" component={Profile} />
       <Stack.Screen name="Interest" component={Interest} />
       <Stack.Screen name="Discover" component={Discover} />
-      <Stack.Screen name="Tab" component={TabNavigation} />
+      <Stack.Screen name="TabNavigation" component={TabNavigation} />
     </Stack.Navigator>
   );
 };

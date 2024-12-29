@@ -1,19 +1,7 @@
-import {useNavigation} from '@react-navigation/native';
 import React, {useState} from 'react';
-import {
-  FlatList,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
-} from 'react-native';
+import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {
   ArrowLeftIcon,
-  ArrowRightIcon,
-  BookmarkIcon,
   ListBulletIcon,
   Squares2X2Icon,
 } from 'react-native-heroicons/outline';

@@ -4,6 +4,8 @@ import Profile1 from '../screens/Profile1';
 import Details from '../screens/Details';
 import BookMark from '../customs/BookMark';
 import Webview from '../screens/Webview';
+import Follower from '../screens/Follower';
+import Following from '../screens/Following';
 
 const Stack = createNativeStackNavigator();
 const ProfileStack = () => {
@@ -15,6 +17,8 @@ const ProfileStack = () => {
       <Stack.Screen name="Details" component={Details} />
       <Stack.Screen name="Bookmarks" component={BookMark} />
       <Stack.Screen name="WebView" component={Webview} />
+      <Stack.Screen name="Follower" component={Follower} />
+      <Stack.Screen name="Following" component={Following} />
     </Stack.Navigator>
   );
 };

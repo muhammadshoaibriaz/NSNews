@@ -5,6 +5,9 @@ import Explore from '../screens/Explore';
 import TopWriter from '../screens/TopWriter';
 import Popular from '../screens/Popular';
 import Discover from '../screens/Discover';
+import UserProfile from '../screens/UserProfile';
+import Follower from '../screens/Follower';
+import Following from '../screens/Following';
 
 const Stack = createNativeStackNavigator();
 const DiscoverStack = () => {
@@ -17,6 +20,9 @@ const DiscoverStack = () => {
       <Stack.Screen name="Writer" component={TopWriter} />
       <Stack.Screen name="Popular" component={Popular} />
       <Stack.Screen name="Discover" component={Discover} />
+      <Stack.Screen name="Follower" component={Follower} />
+      <Stack.Screen name="Following" component={Following} />
+      <Stack.Screen name="UserProfile" component={UserProfile} />
     </Stack.Navigator>
   );
 };

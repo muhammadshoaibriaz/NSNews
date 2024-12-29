@@ -4,6 +4,7 @@ import Article from '../screens/Article';
 import Details from '../screens/Details';
 import TopWriter from '../screens/TopWriter';
 import Popular from '../screens/Popular';
+import PostArticle from '../screens/PostArticle';
 
 const Stack = createNativeStackNavigator();
 const ArticleStack = () => {
@@ -15,6 +16,13 @@ const ArticleStack = () => {
       <Stack.Screen name="Details" component={Details} />
       <Stack.Screen name="Writer" component={TopWriter} />
       <Stack.Screen name="Popular" component={Popular} />
+      <Stack.Screen
+        name="PostArticle"
+        component={PostArticle}
+        options={{
+          animation: 'fade_from_bottom',
+        }}
+      />
     </Stack.Navigator>
   );
 };

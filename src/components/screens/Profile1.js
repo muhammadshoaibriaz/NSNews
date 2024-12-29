@@ -1,26 +1,69 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {StyleSheet, View, Image, Text, TouchableOpacity} from 'react-native';
 import Header from '../customs/Header';
 import About from './About';
 import Articles from './Articles';
 import {font} from '../constants/font';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useSelector} from 'react-redux';
+import axios from 'axios';
+import {baseUrl} from '../../db/IP';
 
 export default function Profile1({navigation}) {
-  const [following, setFollowing] = useState(false);
   const [activeTab, setActiveTab] = useState(1);
+  const [articles, setArticles] = useState([]);
+  const userInfo = useSelector(state => state.login.user);
+  const [user, setUser] = useState(userInfo?.user);
+  const userId = user?._id;
+  // console.log(userId);
+  console.log('userInfo', userInfo);
 
-  // Generate a random number for the username suffix
-  const randomNumber = Math.floor(Math.random() * 999);
+  useEffect(() => {
+    getUserDetails();
+  }, []);
 
+  const getUserDetails = async () => {
+    const token = await AsyncStorage.getItem('token');
+    try {
+      const response = await axios.get(`${baseUrl}/api/register`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      let data = response.data;
+      setUser(data);
+    } catch (error) {
+      console.log('error getting user info', error.message);
+    }
+  };
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const response = await axios.get(
+          `${baseUrl}/api/register/${userId}/articles`,
+        );
+        setArticles(response.data.articles);
+        console.log(response.data);
+      } catch (error) {
+        console.error('Error fetching articles', error);
+      }
+    };
+
+    fetchArticles();
+  }, []);
   // Render the selected component based on the active tab
   const renderContent = () => {
     return activeTab === 1 ? (
-      <Articles navigation={navigation} />
+      <Articles
+        token={userInfo?.token}
+        navigation={navigation}
+        articles={articles}
+      />
     ) : (
       <About navigation={navigation} />
     );
   };
-
   return (
     <View style={styles.container}>
       {/* Header Section */}
@@ -29,45 +72,47 @@ export default function Profile1({navigation}) {
         icon1="mail-outline"
         icon2="ellipsis-horizontal-circle-outline"
         navigation={navigation}
-        // onPress2={() => navigation.navigate('Bookmarks')}
       />
 
       {/* Profile Card Section */}
       <View style={styles.profileCard}>
         <View style={styles.profileInfo}>
           <Image
-            source={require('../../../assets/images/tolgaa.png')}
+            source={
+              user?.image !== ''
+                ? {uri: user?.image}
+                : require('../../../assets/images/avatar_3.jpg')
+            }
             style={styles.profileImage}
           />
           <View style={styles.profileDetails}>
-            <Text style={styles.usernameText}>Shabii</Text>
-            <Text style={styles.userHandle}>@{'shabii' + randomNumber}</Text>
+            <Text style={styles.usernameText}>
+              {!user?.username
+                ? 'Shabii🥀'
+                : user?.username.slice(0, 15).replace('_', ' ') + '...'}
+            </Text>
+            <Text style={styles.userHandle}>@{user?.username}</Text>
           </View>
         </View>
-        <TouchableOpacity
-          style={[
-            styles.followButton,
-            {
-              backgroundColor: following ? '#fff' : '#a1614b',
-              borderColor: following ? '#a1614b' : '#fff',
-            },
-          ]}
-          onPress={() => setFollowing(!following)}>
-          <Text
-            style={[
-              styles.followButtonText,
-              {color: following ? '#a1614b' : '#fff'},
-            ]}>
-            {following ? 'Following' : 'Follow'}
-          </Text>
+        <TouchableOpacity style={styles.followButton}>
+          <Text style={styles.followButtonText}>Edit Profile</Text>
         </TouchableOpacity>
       </View>
 
       {/* Stats Section */}
       <View style={styles.statsContainer}>
-        <StatItem label="Articles" value="365" />
-        <StatItem label="Following" value={0} />
-        <StatItem label="Followers" value={0} />
+        <StatItem label="Articles" value={user?.articles?.length} />
+        <StatItem
+          onPress={() => navigation.navigate('Following', {user})}
+          label="Following"
+          value={`${user?.following?.length}`}
+        />
+        <StatItem
+          label="Followers"
+          value={user?.followers?.length}
+          onPress={() => navigation.navigate('Follower', {user})}
+          style={{borderRightWidth: 0}}
+        />
       </View>
 
       {/* Tabs Section */}
@@ -91,11 +136,14 @@ export default function Profile1({navigation}) {
 }
 
 // Sub-components
-const StatItem = ({label, value}) => (
-  <View style={styles.statItem}>
+const StatItem = ({label, value, onPress, style}) => (
+  <TouchableOpacity
+    activeOpacity={1}
+    style={[styles.statItem, style]}
+    onPress={onPress}>
     <Text style={styles.statValue}>{value}</Text>
     <Text style={styles.statLabel}>{label}</Text>
-  </View>
+  </TouchableOpacity>
 );
 
 const TabItem = ({title, isActive, onPress}) => (
@@ -123,18 +171,23 @@ const styles = StyleSheet.create({
   profileInfo: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
   },
   profileImage: {
     width: 60,
     height: 60,
     borderRadius: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   profileDetails: {
     marginLeft: 10,
+    flex: 1,
   },
   usernameText: {
     fontFamily: font.sm_bold,
     fontSize: 18,
+    textTransform: 'capitalize',
   },
   userHandle: {
     fontFamily: font.regular,
@@ -142,16 +195,18 @@ const styles = StyleSheet.create({
     textTransform: 'lowercase',
   },
   followButton: {
-    paddingHorizontal: 14,
-    height: 40,
+    paddingHorizontal: 10,
+    height: 30,
     borderRadius: 40,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
+    borderColor: '#eee',
   },
   followButtonText: {
-    fontSize: 16,
+    fontSize: 12,
     fontFamily: font.medium,
+    color: '#a1614b',
   },
   statsContainer: {
     flexDirection: 'row',

@@ -12,21 +12,20 @@ import {
 
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-
-import {useNavigation} from '@react-navigation/native';
 import {launchImageLibrary} from 'react-native-image-picker';
-import axios from 'axios';
-import {IP_ADDRESS} from '../../db/IP';
 import {font} from '../constants/font';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {uploadImageToCloudinary} from '../../db/cloudinary';
 
-export default function Profile({route}) {
-  const {username, email, password} = route.params;
-
+export default function Profile({route, navigation}) {
+  const {username} = route.params;
   const [phone, setPhone] = useState('');
   const [gender, setGender] = useState('');
-  const [image, setImage] = useState(null);
   const [dateOfBirth, setDateOfBirth] = useState('');
-  const navigation = useNavigation();
+  const [image, setImage] = useState('');
+  const [followers, setFollowers] = useState([]);
+  const [following, setFollowing] = useState([]);
+  const [articles, setArticles] = useState([]);
 
   const handleFieldChange = setter => value => setter(value);
 
@@ -37,17 +36,30 @@ export default function Profile({route}) {
     }
   };
 
+  // const userData = {};
+
   const onSubmit = async () => {
-    if (
-      !username.trim() ||
-      !phone.trim() ||
-      !gender.trim() ||
-      !dateOfBirth.trim()
-    ) {
-      ToastAndroid.show('Please fill all fields', ToastAndroid.LONG);
-      return;
-    } else {
-      navigation.navigate('Interest');
+    try {
+      let avatarUrl = null;
+      if (image) {
+        avatarUrl = await uploadImageToCloudinary(image);
+        console.log('Avatar URL:', avatarUrl);
+      }
+      if (!phone.trim() || !gender.trim() || !dateOfBirth.trim()) {
+        ToastAndroid.show('Please fill all fields', ToastAndroid.LONG);
+        return;
+      } else {
+        await AsyncStorage.setItem('user', `${username}`);
+        navigation.navigate('Interest', {
+          ...route?.params,
+          image: avatarUrl,
+          followers,
+          following,
+          articles,
+        });
+      }
+    } catch (err) {
+      console.log('Error while submitting request', err.message);
     }
   };
 
@@ -69,7 +81,7 @@ export default function Profile({route}) {
         {image ? (
           <Image
             style={styles.profileImage}
-            resizeMode="contain"
+            resizeMode="cover"
             source={{uri: image}}
           />
         ) : (
@@ -80,12 +92,17 @@ export default function Profile({route}) {
           />
         )}
         <TouchableOpacity style={styles.imagePickerButton} onPress={pickImage}>
-          <FontAwesome name="image" size={13} color="#fff" />
+          <FontAwesome name="image" size={14} color="#fff" />
         </TouchableOpacity>
       </View>
 
       {/* Input Fields */}
-      <InputField label="Full Name" placeholder="Full Name" />
+      <InputField
+        label="Full Name"
+        placeholder={username}
+        editable={false}
+        value={username}
+      />
       <InputField
         label="Phone Number"
         placeholder="Phone Number"
@@ -120,6 +137,7 @@ const InputField = ({
   placeholder,
   value,
   onChangeText,
+  editable,
   keyboardType = 'default',
 }) => (
   <View style={styles.inputFieldContainer}>
@@ -131,6 +149,7 @@ const InputField = ({
       value={value}
       onChangeText={onChangeText}
       keyboardType={keyboardType}
+      editable={editable}
     />
   </View>
 );
@@ -148,13 +167,13 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   title: {
-    // fontFamily: font.medium,
+    fontFamily: font.medium,
     fontSize: 24,
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 16,
-    // fontFamily: font.medium,
+    fontFamily: font.regular,
   },
   imageContainer: {
     alignSelf: 'center',
@@ -177,13 +196,13 @@ const styles = StyleSheet.create({
     opacity: 0.1,
   },
   imagePickerButton: {
-    width: 30,
-    height: 30,
+    width: 35,
+    height: 35,
     position: 'absolute',
-    bottom: 10,
-    right: 10,
+    bottom: 3,
+    right: 2,
     backgroundColor: '#a1614b',
-    borderRadius: 15,
+    borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
@@ -193,10 +212,10 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   inputLabel: {
-    // fontFamily: font.medium,
+    fontFamily: font.medium,
   },
   input: {
-    // fontFamily: 'MontserratMedium',
+    fontFamily: font.medium,
     height: 45,
     fontSize: 15,
     borderBottomWidth: 1,
@@ -212,7 +231,7 @@ const styles = StyleSheet.create({
   },
   submitButtonText: {
     color: '#fff',
-    // fontFamily: font.sm_bold,
+    fontFamily: font.sm_bold,
     fontSize: 16,
   },
 });

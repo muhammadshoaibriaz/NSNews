@@ -1,7 +1,6 @@
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {getFocusedRouteNameFromRoute} from '@react-navigation/native';
 import React from 'react';
-import Profile1 from '../screens/Profile1';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -74,7 +73,10 @@ const getRouteName = route => {
     routeName?.includes('Popular') ||
     routeName?.includes('Search') ||
     routeName?.includes('WebView') ||
-    routeName?.includes('Details')
+    routeName?.includes('Follower') ||
+    routeName?.includes('Following') ||
+    routeName?.includes('Details') ||
+    routeName?.includes('UserProfile')
   ) {
     return 'none';
   } else {

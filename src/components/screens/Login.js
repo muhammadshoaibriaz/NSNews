@@ -5,25 +5,77 @@ import {
   TouchableOpacity,
   View,
   TextInput,
+  Alert,
 } from 'react-native';
 import {CheckBox} from 'react-native-elements';
 // import {Checkbox} from 'react-native-paper';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {font} from '../constants/font';
-
+import axios from 'axios';
+import {baseUrl} from '../../db/IP';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useDispatch} from 'react-redux';
+import {setLogin} from '../redux/slices/loginSlice';
+import {ActivityIndicator} from 'react-native-paper';
 export default function Login({navigation}) {
   // State Variables
+  const dispatch = useDispatch();
   const [checked, setChecked] = useState(false);
-  const [userEmail, setUserEmail] = useState('');
-  const [userPassword, setUserPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [visible, setVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Handle TextInput for Email
-  const handleEmailInput = value => setUserEmail(value);
+  const handleEmailInput = value => setEmail(value);
 
   // Handle TextInput for Password
-  const handlePasswordInput = value => setUserPassword(value);
+  const handlePasswordInput = value => setPassword(value);
+
+  const handleLogin = async () => {
+    setLoading(true);
+    try {
+      const results = await axios.post(`${baseUrl}/api/login`, {
+        email,
+        password,
+      });
+
+      const data = results.data;
+      if (results.status === 200) {
+        await AsyncStorage.setItem('token', data?.token);
+        // console.log('token is', data.token);
+        dispatch(setLogin(data));
+        navigation.navigate('TabNavigation', {data});
+      }
+    } catch (error) {
+      if (error.response) {
+        // Server responded with a status other than 200
+        const {status, data} = error.response;
+
+        if (status === 401) {
+          // Assuming 401 indicates invalid credentials
+          Alert.alert('Error', 'Invalid Email or Password');
+        } else if (status === 400) {
+          // Additional case for specific bad request messages
+          Alert.alert('Error', data.message || 'Bad Request');
+        } else {
+          // Other errors
+          Alert.alert('Error', 'Something went wrong. Please try again.');
+        }
+      } else {
+        // Network or other errors
+        Alert.alert(
+          'Error',
+          'Unable to connect. Please check your internet connection.',
+        );
+      }
+
+      console.log('Error logging in:', error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -48,7 +100,7 @@ export default function Login({navigation}) {
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Username / Email</Text>
         <TextInput
-          value={userEmail}
+          value={email}
           placeholder="johndoe@gmail.com"
           placeholderTextColor="#888"
           style={styles.input}
@@ -61,12 +113,12 @@ export default function Login({navigation}) {
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Password</Text>
         <TextInput
-          value={userPassword}
-          placeholder="Password"
+          value={password}
           placeholderTextColor="#888"
           style={styles.input}
           secureTextEntry={true}
           onChangeText={handlePasswordInput}
+          placeholder="••••••••"
         />
       </View>
 
@@ -102,11 +154,14 @@ export default function Login({navigation}) {
 
       {/* Sign In Button */}
       <TouchableOpacity
+        disabled={loading ? true : false}
         style={styles.signInButton}
-        onPress={() => {
-          navigation.replace('TabNavigation');
-        }}>
-        <Text style={[styles.text, styles.signInButtonText]}>Sign In</Text>
+        onPress={handleLogin}>
+        {loading ? (
+          <ActivityIndicator size={20} color={'#fff'} />
+        ) : (
+          <Text style={[styles.text, styles.signInButtonText]}>Sign In</Text>
+        )}
       </TouchableOpacity>
     </View>
   );
@@ -185,10 +240,10 @@ const styles = StyleSheet.create({
   },
   signInButton: {
     backgroundColor: '#a1614b',
-    borderRadius: 30,
+    borderRadius: 6,
     width: '100%',
     alignSelf: 'center',
-    marginTop: 90,
+    marginTop: 60,
     height: 50,
     justifyContent: 'center',
     alignItems: 'center',

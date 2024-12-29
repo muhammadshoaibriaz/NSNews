@@ -13,14 +13,14 @@ import {font} from '../constants/font';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const {width, height} = Dimensions.get('screen');
-
+const DOT_SIZE = 8;
 const Indicator = ({scrollX, data}) => {
   return (
     <View style={styles.pagination}>
       {data.map((_, index) => {
-        const scale = scrollX.interpolate({
+        const dot_width = scrollX.interpolate({
           inputRange: [(index - 1) * width, index * width, (index + 1) * width],
-          outputRange: [1, 3, 1],
+          outputRange: [DOT_SIZE, DOT_SIZE * 3, DOT_SIZE],
           extrapolate: 'clamp',
         });
 
@@ -33,10 +33,7 @@ const Indicator = ({scrollX, data}) => {
         return (
           <Animated.View
             key={index}
-            style={[
-              styles.dot,
-              {transform: [{scaleX: scale}], backgroundColor},
-            ]}
+            style={[styles.dot, {width: dot_width, backgroundColor}]}
           />
         );
       })}
@@ -153,10 +150,10 @@ const styles = StyleSheet.create({
     bottom: 120,
   },
   dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 8,
-    marginHorizontal: 8,
+    width: DOT_SIZE,
+    height: DOT_SIZE,
+    borderRadius: DOT_SIZE,
+    marginHorizontal: 4,
     backgroundColor: '#ddd',
   },
   buttonContainer: {

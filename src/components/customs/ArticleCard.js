@@ -2,12 +2,13 @@ import React, {useRef, useState} from 'react';
 import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import ListView from './ListView';
 import {font} from '../constants/font';
+import * as Animatable from 'react-native-animatable';
 
 export const SPACING = 14;
 
 export default function ArticleCard({
   data,
-  title = 'World War 2',
+  title = 'All',
   subtitle = 'View all',
   navigation,
 }) {
@@ -60,6 +61,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: font.sm_bold,
     fontSize: 18,
+    textTransform: 'capitalize',
   },
   subtitle: {
     fontFamily: font.medium,
@@ -68,6 +70,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: SPACING,
+    paddingRight: 24,
   },
   blogImage: {
     width: 100,

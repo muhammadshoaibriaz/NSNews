@@ -1,14 +1,15 @@
-import React from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   Image,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
   Share,
+  Animated,
   StatusBar,
+  ActivityIndicator,
 } from 'react-native';
 import {
   ArrowLeftIcon,
@@ -17,8 +18,11 @@ import {
   PaperAirplaneIcon,
 } from 'react-native-heroicons/outline';
 import {font} from '../constants/font';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {addBookMark} from '../redux/slices/bookMarkSlice';
+import axios from 'axios';
+import {baseUrl, onFollowing} from '../../db/IP';
+import {FAB} from 'react-native-elements';
 
 export default function Details({route, navigation}) {
   const {item} = route.params;
@@ -27,18 +31,120 @@ export default function Details({route, navigation}) {
     dispatch(addBookMark(items));
   };
 
+  // console.log(item?.postedBy);
+  const userInfo = useSelector(user => user.login.user);
+  const token = userInfo?.token;
+  // console.log(token);
+
+  // console.log('followId' + followId + 'userId' + userId);
+  const [following, setFollowing] = useState(false);
+  // console.log(userInfo);
+  const onFollow = async () => {
+    await onFollowing(item?.postedBy, token);
+  };
+
+  const checkFollowStatus = (targetUserId, followingArray) => {
+    return followingArray.includes(targetUserId);
+  };
+
+  useEffect(() => {
+    const fetchFollowStatus = async () => {
+      try {
+        const response = await axios.get(`${baseUrl}/api/register`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const isFollowing = checkFollowStatus(
+          item?.postedBy,
+          response.data.following,
+        );
+        setFollowing(isFollowing);
+        // console.log(isFollowing);
+      } catch (error) {
+        console.log('Error fetching user details', error.message);
+      }
+    };
+
+    fetchFollowStatus();
+  }, []);
+
+  const [liked, setLiked] = useState(false);
+  const likePost = async () => {
+    try {
+      const response = await axios.patch(
+        `${baseUrl}/api/post/${item._id}/like-unlike`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      console.log(response.data);
+      setLiked(!liked);
+      // dispatch(addLike(response.data));
+    } catch (error) {
+      console.log('Error liking post', error.message);
+    }
+  };
+
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const backgroundColor = scrollY.interpolate({
+    inputRange: [0, 50],
+    outputRange: ['transparent', '#fff'],
+    extrapolate: 'clamp',
+  });
+  const elevation = scrollY.interpolate({
+    inputRange: [0, 500],
+    outputRange: [0, 20],
+    extrapolate: 'clamp',
+  });
+  const [height, setHeight] = useState(0);
+  useEffect(() => {
+    let handleScroller = scrollY.addListener(({value}) => {
+      setHeight(value);
+    });
+    () => {
+      scrollY.removeListener(handleScroller);
+    };
+  }, []);
+
+  const handleScroll = Animated.event(
+    [{nativeEvent: {contentOffset: {y: scrollY}}}],
+    {useNativeDriver: false},
+  );
+
+  // if (!following) {
+  //   return (
+  //     <View style={styles.activityIndicator}>
+  //       <ActivityIndicator size={30} color={'chocolate'} />
+  //     </View>
+  //   );
+  // }
+
   return (
     <View style={styles.container}>
+      <StatusBar translucent={false} backgroundColor={'#a1614b90'} />
       {/* Header */}
-      <SafeAreaView style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <ArrowLeftIcon color="#fff" size={20} />
+      <Animated.View
+        style={[styles.header, {backgroundColor: backgroundColor, elevation}]}>
+        <TouchableOpacity
+          style={[
+            styles.iconBtn,
+            {alignItems: 'flex-start', backgroundColor: 'transparent'},
+          ]}
+          onPress={() => navigation.goBack()}>
+          <ArrowLeftIcon color={height < 40 ? '#fff' : 'chocolate'} size={20} />
         </TouchableOpacity>
         <View style={styles.headerIcons}>
           <TouchableOpacity
             style={styles.iconBtn}
             onPress={() => addToBookmark(item)}>
-            <BookmarkIcon size={20} color="#fff" />
+            <BookmarkIcon
+              size={20}
+              color={height < 40 ? '#fff' : 'chocolate'}
+            />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.iconBtn}
@@ -46,27 +152,35 @@ export default function Details({route, navigation}) {
               Share.share({
                 title: item?.title,
                 message: item?.description,
-                url: item?.author_image,
+                url: item?.authorImage,
               });
             }}>
             <PaperAirplaneIcon
               style={styles.airplaneIcon}
               size={20}
-              color="#fff"
+              color={height < 80 ? '#fff' : 'chocolate'}
             />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.iconBtn}
             onPress={() => navigation.navigate('Notify')}>
-            <EllipsisHorizontalCircleIcon size={20} color="#fff" />
+            <EllipsisHorizontalCircleIcon
+              size={20}
+              color={height < 80 ? '#fff' : 'chocolate'}
+            />
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
+      </Animated.View>
       <View style={styles.scrollView}>
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <ScrollView
+          ref={scrollY}
+          scrollEventThrottle={16}
+          onScroll={handleScroll}
+          removeClippedSubviews={false}
+          showsVerticalScrollIndicator={false}>
           {/* Image and Title */}
           <View style={styles.imageContainer}>
-            <Image source={item?.image_url} style={styles.mainImage} />
+            <Image source={{uri: item?.imageUrl}} style={styles.mainImage} />
             <Text style={styles.title}>{item?.title}</Text>
           </View>
           {/* Content */}
@@ -74,14 +188,36 @@ export default function Details({route, navigation}) {
             {/* Author Section */}
             <View style={styles.authorSection}>
               <View style={styles.authorInfo}>
-                <Image source={item?.author_image} style={styles.authorImage} />
+                <Image
+                  source={{uri: item?.authorImage}}
+                  style={styles.authorImage}
+                />
                 <View style={styles.authorDetails}>
-                  <Text style={styles.authorName}>{item?.author}</Text>
-                  <Text style={styles.authorHandle}>@{item?.author}</Text>
+                  <Text style={styles.authorName} onPress={() => {}}>
+                    {item?.authorName?.replace('_', ' ')}
+                  </Text>
+                  <Text style={styles.authorHandle}>@{item?.authorName}</Text>
                 </View>
               </View>
-              <TouchableOpacity style={styles.followButton}>
-                <Text style={styles.followText}>Follow</Text>
+              <TouchableOpacity
+                style={[
+                  styles.followButton,
+                  {
+                    backgroundColor: following ? 'transparent' : 'chocolate',
+                    borderWidth: 1,
+                    borderColor: following ? '#eee' : 'white',
+                  },
+                ]}
+                onPress={onFollow}>
+                <Text
+                  style={[
+                    styles.followText,
+                    {
+                      color: following ? 'chocolate' : '#fff',
+                    },
+                  ]}>
+                  {following ? 'Following' : 'Follow'}
+                </Text>
               </TouchableOpacity>
             </View>
 
@@ -90,6 +226,15 @@ export default function Details({route, navigation}) {
             <Text style={styles.content}>{item?.description}</Text>
           </View>
         </ScrollView>
+        <Animated.View style={[styles.bottomArea]}>
+          <FAB
+            icon={{name: 'thumb-up', color: liked ? '#a1614b' : 'black'}}
+            color="#fff"
+            placement="right"
+            size="large"
+            onPress={likePost}
+          />
+        </Animated.View>
       </View>
     </View>
   );
@@ -108,7 +253,7 @@ const styles = StyleSheet.create({
     height: 50,
     zIndex: 11,
     width: '100%',
-    backgroundColor: 'transparent',
+    backgroundColor: 'white',
     position: 'absolute',
   },
   headerIcons: {
@@ -160,6 +305,7 @@ const styles = StyleSheet.create({
   authorInfo: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
   },
   authorImage: {
     width: 60,
@@ -172,6 +318,7 @@ const styles = StyleSheet.create({
   authorName: {
     fontFamily: font.sm_bold,
     fontSize: 18,
+    textTransform: 'capitalize',
   },
   authorHandle: {
     fontFamily: font.regular,
@@ -179,12 +326,12 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   followButton: {
-    width: 90,
     height: 40,
     borderRadius: 40,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#a1614b',
+    paddingHorizontal: 18,
   },
   followText: {
     color: '#fff',
@@ -203,5 +350,28 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+  },
+  icon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconText: {
+    fontSize: 10,
+    marginLeft: 4,
+    fontFamily: font.medium,
+    opacity: 0.7,
+  },
+  bottomArea: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 100,
+    alignSelf: 'flex-end',
+    position: 'absolute',
+    bottom: 0,
+  },
+  activityIndicator: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

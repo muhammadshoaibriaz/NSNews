@@ -1,8 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {combineReducers} from 'redux';
-import bookmarkSlice from './slices/bookMarkSlice';
 import {configureStore} from '@reduxjs/toolkit';
 import {persistReducer, persistStore} from 'redux-persist';
+
+// slices
+import bookmarkSlice from './slices/bookMarkSlice';
+import followingSlice from './slices/followingSlice';
+import loginSlice from './slices/loginSlice';
 
 const persistConfig = {
   key: 'root',
@@ -11,6 +15,8 @@ const persistConfig = {
 
 const rootReducer = combineReducers({
   bookmark: bookmarkSlice.reducer,
+  following: followingSlice.reducer,
+  login: loginSlice.reducer,
 });
 
 const persistReducers = persistReducer(persistConfig, rootReducer);

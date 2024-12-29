@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -8,15 +8,31 @@ import {
   StyleSheet,
   Dimensions,
 } from 'react-native';
-import {EllipsisVerticalIcon} from 'react-native-heroicons/outline';
+import {
+  BackspaceIcon,
+  EllipsisVerticalIcon,
+} from 'react-native-heroicons/outline';
 import {font} from '../constants/font';
+import {Menu} from 'react-native-paper';
 
 const ITEM_WIDTH = Dimensions.get('screen').width / 2 - 20;
 
-export default function CardView({onPress, item}) {
+export default function CardView({onPress, item, route, onIconPress}) {
+  const [visible, setVisible] = useState(false);
+
+  const openMenu = () => setVisible(true);
+  const closeMenu = () => setVisible(false);
   return (
     <TouchableWithoutFeedback onPress={onPress}>
       <View style={styles.card}>
+        <TouchableOpacity
+          style={[
+            styles.crossIcon,
+            {display: route?.name === 'Bookmarks' ? 'flex' : 'none'},
+          ]}
+          onPress={onIconPress}>
+          <BackspaceIcon size={22} color="chocolate" />
+        </TouchableOpacity>
         <View style={styles.imageContainer}>
           <Image
             source={item?.image_url}
@@ -38,10 +54,40 @@ export default function CardView({onPress, item}) {
               <Image source={item?.author_image} style={styles.authorImage} />
               <Text style={styles.authorText}>{item?.author}</Text>
             </View>
+            <Menu
+              visible={visible}
+              onDismiss={closeMenu}
+              contentStyle={{backgroundColor: '#fff'}}
+              anchor={
+                <EllipsisVerticalIcon
+                  onPress={openMenu}
+                  size={20}
+                  color="#777"
+                />
+              }>
+              <Menu.Item
+                onPress={() => {
+                  /* Handle share */
+                }}
+                title="Share"
+              />
+              <Menu.Item
+                onPress={() => {
+                  /* Handle bookmark */
+                }}
+                title="Bookmark"
+              />
+              <Menu.Item
+                onPress={() => {
+                  /* Handle report */
+                }}
+                title="Report"
+              />
+            </Menu>
 
-            <TouchableOpacity style={styles.moreOptionsBtn}>
+            {/* <TouchableOpacity style={styles.moreOptionsBtn}>
               <EllipsisVerticalIcon size={20} color="#777" />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         </View>
       </View>
@@ -108,5 +154,15 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     alignItems: 'flex-end',
     justifyContent: 'center',
+  },
+  crossIcon: {
+    width: 35,
+    height: 35,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    position: 'absolute',
+    right: 10,
+    top: 0,
+    zIndex: 111,
   },
 });

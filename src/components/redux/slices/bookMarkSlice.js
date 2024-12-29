@@ -9,7 +9,7 @@ const bookmarkSlice = createSlice({
       ToastAndroid.show('Added to bookmark!', 3000);
     },
     removeBookMark: (state, action) => {
-      state = state.filter(item => item.id !== action.payload);
+      state = state.filter(item => item.title !== action.payload?.title);
       ToastAndroid.show('Removed from bookmark!', 3000);
       return state;
     },

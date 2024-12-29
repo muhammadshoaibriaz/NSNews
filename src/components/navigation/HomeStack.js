@@ -17,7 +17,7 @@ const HomeStack = () => {
         name="Details"
         component={Details}
         options={{
-          animation: 'ios_from_right',
+          animation: 'slide_from_right',
         }}
       />
       <Stack.Screen name="Notify" component={Notifications} />

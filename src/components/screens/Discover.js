@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, memo} from 'react';
 import {
   Image,
   StyleSheet,
@@ -6,32 +6,39 @@ import {
   TouchableOpacity,
   View,
   FlatList,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {Dialog} from 'react-native-elements';
-import {useNavigation} from '@react-navigation/native';
 import {font} from '../constants/font';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useDispatch} from 'react-redux';
+import {addFollowing} from '../redux/slices/followingSlice';
+import axios from 'axios';
+import {baseUrl} from '../../db/IP';
+import LottieView from 'lottie-react-native';
 
-const Item = ({item, index}) => {
+const Item = memo(({item, index, dispatch}) => {
   const [follow, setFollow] = useState(false);
-
   const handleFollow = () => setFollow(!follow);
-
+  // console.log(item);
   return (
     <View style={styles.personList}>
       <View style={styles.personDetails}>
         <Image
-          source={require('../../../assets/images/tolgaa.png')}
+          source={{uri: item?.picture?.large}}
           style={styles.image}
           resizeMode="cover"
         />
         <View style={styles.textContainer}>
           <Text style={styles.username} numberOfLines={1}>
-            {item?.username || 'Unknown'}
+            {item?.name?.first + ' ' + item?.name?.last || 'Unknown'}
           </Text>
-          <Text style={styles.handle}>@{item?.username || '@unknown'}</Text>
+          <Text style={styles.handle}>
+            @{item?.name?.first + item?.name?.last || 'unknown'}
+          </Text>
         </View>
       </View>
       <TouchableOpacity
@@ -39,33 +46,69 @@ const Item = ({item, index}) => {
           styles.followButton,
           {backgroundColor: follow ? 'white' : '#a1614b'},
         ]}
-        onPress={handleFollow}>
+        onPress={() => {
+          handleFollow();
+          dispatch(addFollowing(item));
+        }}>
         <Text style={[styles.followText, {color: follow ? '#111' : '#fff'}]}>
           {follow ? 'Following' : 'Follow'}
         </Text>
       </TouchableOpacity>
     </View>
   );
-};
+});
 
-export default function Discover() {
-  const navigation = useNavigation();
+export default function Discover({route, navigation}) {
+  // console.log(route?.params);
+  const {username, data} = route?.params;
   const [visible, setVisible] = useState(false);
   const [author, setAuthors] = useState([]);
+  const [preferences, setPreferences] = useState([]);
   const [loaded, setLoaded] = useState(false);
-
-  const handleFinish = async () => {
-    setVisible(true);
-    setLoaded(true);
-    await AsyncStorage.setItem('token', 'token passed');
-    setTimeout(() => {
-      setLoaded(false);
-    }, 5000);
-  };
+  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  data
+    .filter(val => val.selected === true)
+    .map(item => preferences.push(item?.name));
+  // console.log(preferences);
+  useEffect(() => {
+    const getRandomUser = async () => {
+      const results = await axios.get('https://randomuser.me/api/?results=100');
+      // console.log(results.data);
+      setAuthors(results.data.results);
+    };
+    getRandomUser();
+  }, []);
+  // console.log(preferences);
 
   const handleContinue = () => {
     setVisible(false);
-    navigation.navigate('Tab');
+    navigation.replace('Login');
+  };
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      const results = await axios.post(`${baseUrl}/api/register`, {
+        ...route?.params,
+        preferences,
+      });
+      if (results.status === 200) {
+        Alert.alert('User exist!', 'User Already exist.');
+      } else {
+        setLoaded(true);
+        setVisible(true);
+        await AsyncStorage.setItem('token', 'token passed');
+        setTimeout(() => {
+          setLoaded(false);
+        }, 5000);
+        await AsyncStorage.setItem('user', `${username}`);
+      }
+    } catch (error) {
+      console.error('Error while creating user account ', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -77,12 +120,16 @@ export default function Discover() {
       </TouchableOpacity>
       <Text style={styles.title}>Discover people 🥰</Text>
       <Text style={styles.subtitle}>Pick some people to follow.</Text>
+      {/* <View style={{flex: 0.6}}> */}
       <FlatList
         data={author}
         showsVerticalScrollIndicator={false}
-        renderItem={({item, index}) => <Item item={item} index={index} />}
+        renderItem={({item, index}) => (
+          <Item item={item} index={index} dispatch={dispatch} />
+        )}
         keyExtractor={(item, index) => index.toString()}
       />
+      {/* </View> */}
       <Dialog
         isVisible={visible}
         transparent={true}
@@ -104,7 +151,7 @@ export default function Discover() {
             preparing for you.
           </Text>
           {loaded ? (
-            <Image
+            <LottieView
               style={styles.loadingImage}
               source={{
                 uri: 'https://i.gifer.com/origin/e4/e439272bf16c2df6b43e480de9fb1810_w200.gif',
@@ -120,8 +167,12 @@ export default function Discover() {
         </View>
       </Dialog>
 
-      <TouchableOpacity onPress={handleFinish} style={styles.finishButton}>
-        <Text style={styles.finishText}>Finish</Text>
+      <TouchableOpacity onPress={handleSubmit} style={styles.finishButton}>
+        {loading ? (
+          <ActivityIndicator size={20} color={'#fff'} />
+        ) : (
+          <Text style={styles.finishText}>Finish</Text>
+        )}
       </TouchableOpacity>
     </View>
   );
@@ -131,6 +182,7 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 14,
     backgroundColor: '#fff',
+    flex: 1,
   },
   goBackButton: {
     position: 'relative',
@@ -240,12 +292,12 @@ const styles = StyleSheet.create({
   },
   finishButton: {
     backgroundColor: '#a1614b',
-    marginTop: 10,
     width: '100%',
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 30,
+    bottom: 10,
   },
   finishText: {
     fontFamily: font.medium,

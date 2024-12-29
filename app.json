@@ -1,4 +1,5 @@
 {
   "name": "SBNews",
-  "displayName": "SBNews"
+  "displayName": "SBNews",
+  "platforms": ["ios", "android", "web"]
 }

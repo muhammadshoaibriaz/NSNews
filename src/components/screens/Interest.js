@@ -1,15 +1,9 @@
 import React, {useState} from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {font} from '../constants/font';
 
-export default function Interest({navigation}) {
+export default function Interest({navigation, route}) {
   const [data, setData] = useState([
     {name: 'Science & Technology', selected: false},
     {name: 'Design', selected: false},
@@ -85,12 +79,14 @@ export default function Interest({navigation}) {
       {/* Skip & Continue Buttons */}
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          onPress={() => navigation.navigate('Tab')}
+          onPress={() => navigation.navigate('Discover', {...route.params})}
           style={[styles.button, styles.skipButton]}>
           <Text style={styles.buttonText}>Skip</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => navigation.navigate('Discover')}
+          onPress={() =>
+            navigation.navigate('Discover', {...route.params, data})
+          }
           style={[styles.button, styles.continueButton]}>
           <Text style={[styles.buttonText, styles.continueText]}>Continue</Text>
         </TouchableOpacity>

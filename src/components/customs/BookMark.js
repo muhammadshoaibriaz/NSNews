@@ -9,12 +9,14 @@ import {
 import {font} from '../constants/font';
 import ListView from './ListView';
 import CardView from './CardView';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
+import {removeBookMark} from '../redux/slices/bookMarkSlice';
 
-export default function BookMark({navigation}) {
+export default function BookMark({navigation, route}) {
   const [row, setRow] = useState(false);
   const data = useSelector(state => state.bookmark);
   // console.log(data);
+  const dispatch = useDispatch();
 
   const renderItem = ({item, index}) => {
     return (
@@ -23,12 +25,16 @@ export default function BookMark({navigation}) {
           <ListView
             item={item}
             key={index}
+            route={route}
+            onIconPress={() => dispatch(removeBookMark(item))}
             onPress={() => navigation.navigate('Details', {item})}
           />
         ) : (
           <CardView
             item={item}
             key={'CardView'}
+            route={route}
+            onIconPress={() => dispatch(removeBookMark(item))}
             onPress={() => navigation.navigate('Details', {item})}
           />
         )}
@@ -46,11 +52,11 @@ export default function BookMark({navigation}) {
           </TouchableOpacity>
           <Text style={styles.headerTitle}>My Bookmark</Text>
         </View>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.iconBtn}
           onPress={() => navigation.navigate('Search')}>
           <MagnifyingGlassIcon size={20} color="#777" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
       {/* Filters */}
@@ -97,6 +103,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingVertical: 8,
   },
   headerLeft: {
     flexDirection: 'row',

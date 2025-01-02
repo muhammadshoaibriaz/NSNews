@@ -8,6 +8,7 @@ import Discover from '../screens/Discover';
 import UserProfile from '../screens/UserProfile';
 import Follower from '../screens/Follower';
 import Following from '../screens/Following';
+import Search from '../screens/Search';
 
 const Stack = createNativeStackNavigator();
 const DiscoverStack = () => {

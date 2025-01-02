@@ -41,20 +41,26 @@ export default function Follower({route, navigation}) {
         </TouchableOpacity>
         <Text style={styles.title}>Follower! </Text>
       </View>
-      <FlatList
-        data={followers}
-        showsVerticalScrollIndicator={false}
-        renderItem={({item, index}) => {
-          return (
-            <User
-              token={token}
-              navigation={navigation}
-              item={item}
-              index={index}
-            />
-          );
-        }}
-      />
+      {followers?.length < 1 ? (
+        <View style={styles.wrapper}>
+          <Text style={styles.nofollowerText}>No followers yet!</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={followers}
+          showsVerticalScrollIndicator={false}
+          renderItem={({item, index}) => {
+            return (
+              <User
+                token={token}
+                navigation={navigation}
+                item={item}
+                index={index}
+              />
+            );
+          }}
+        />
+      )}
     </View>
   );
 }
@@ -147,5 +153,15 @@ const styles = StyleSheet.create({
     fontFamily: font.sm_bold,
     fontSize: 24,
     marginBottom: 10,
+  },
+  wrapper: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  nofollowerText: {
+    fontFamily: font.sm_bold,
+    fontSize: 18,
+    opacity: 0.5,
   },
 });

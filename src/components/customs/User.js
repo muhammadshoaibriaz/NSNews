@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {memo, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {baseUrl, onFollowing} from '../../db/IP';
 import {
   Image,
@@ -18,7 +18,7 @@ const generateRandomColor = () => {
   return `rgb(${r}, ${g}, ${b})`;
 };
 
-const User = memo(({item, index, navigation, token}) => {
+const User = React.memo(({item, index, navigation, token}) => {
   const bgColor = generateRandomColor();
   // console.log(item);
   const userId = item?._id;
@@ -45,14 +45,13 @@ const User = memo(({item, index, navigation, token}) => {
         console.log('Error fetching user details', error.message);
       }
     };
-
     fetchFollowStatus();
   }, []);
 
   const handleFollow = async () => {
     try {
       await onFollowing(userId, token);
-      setFollowing(!following); // Toggle the follow status in the UI
+      setFollowing(!following);
     } catch (error) {
       console.error('Error handling follow action:', error.message);
     }
@@ -61,24 +60,34 @@ const User = memo(({item, index, navigation, token}) => {
   return (
     <TouchableHighlight
       onPress={() => navigation.navigate('UserProfile', {item})}
-      underlayColor={'#eee'}>
+      underlayColor={'#eee'}
+      key={index}>
       <View style={styles.listView}>
         {/* <Text style={styles.writerCount}>{index + 1}</Text> */}
         <View>
           {!item?.image ? (
             <View style={[styles.avatar, {backgroundColor: bgColor}]}>
               <Text style={styles.avatarText}>
-                {item?.username?.charAt(0).toUpperCase()}
+                {item?.username?.charAt(0)?.toUpperCase() ||
+                  item?.name?.first?.charAt(0).toUpperCase(0)}
               </Text>
             </View>
           ) : (
-            <Image source={{uri: item.image}} style={styles.avatar} />
+            <Image
+              source={{uri: item.image || item?.picture?.thumbnail}}
+              style={styles.avatar}
+            />
           )}
         </View>
         <View style={styles.listItem}>
-          <Text style={styles.name}>{item?.username.replace('_', ' ')}</Text>
+          <Text style={styles.name}>
+            {item?.username?.replace('_', ' ') ||
+              item?.name?.first + ' ' + item?.name?.last}
+          </Text>
           <Text style={styles.source}>
-            @{item?.username.replace(/\s+/g, '')}
+            @
+            {item?.username?.replace(/\s+/g, '') ||
+              item?.name?.first + ' ' + item?.name?.last}
           </Text>
         </View>
         {!following ? (

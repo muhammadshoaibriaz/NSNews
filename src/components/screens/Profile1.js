@@ -4,54 +4,27 @@ import Header from '../customs/Header';
 import About from './About';
 import Articles from './Articles';
 import {font} from '../constants/font';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useSelector} from 'react-redux';
-import axios from 'axios';
-import {baseUrl} from '../../db/IP';
+import {fetchArticles} from '../../db/funtionalDatabase';
 
 export default function Profile1({navigation}) {
   const [activeTab, setActiveTab] = useState(1);
   const [articles, setArticles] = useState([]);
   const userInfo = useSelector(state => state.login.user);
-  const [user, setUser] = useState(userInfo?.user);
+  const [user] = useState(userInfo?.user);
   const userId = user?._id;
   // console.log(userId);
-  console.log('userInfo', userInfo);
+  // console.log('userInfo', userInfo);
 
   useEffect(() => {
-    getUserDetails();
-  }, []);
-
-  const getUserDetails = async () => {
-    const token = await AsyncStorage.getItem('token');
-    try {
-      const response = await axios.get(`${baseUrl}/api/register`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      let data = response.data;
-      setUser(data);
-    } catch (error) {
-      console.log('error getting user info', error.message);
-    }
-  };
-
-  useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        const response = await axios.get(
-          `${baseUrl}/api/register/${userId}/articles`,
-        );
-        setArticles(response.data.articles);
-        console.log(response.data);
-      } catch (error) {
-        console.error('Error fetching articles', error);
-      }
+    const getArticle = async () => {
+      const results = await fetchArticles(userId);
+      // console.log('results', results.articles);
+      setArticles(results?.articles);
     };
-
-    fetchArticles();
+    getArticle();
   }, []);
+
   // Render the selected component based on the active tab
   const renderContent = () => {
     return activeTab === 1 ? (
@@ -86,7 +59,7 @@ export default function Profile1({navigation}) {
             style={styles.profileImage}
           />
           <View style={styles.profileDetails}>
-            <Text style={styles.usernameText}>
+            <Text style={styles.usernameText} onPress={fetchArticles}>
               {!user?.username
                 ? 'Shabii🥀'
                 : user?.username.slice(0, 15).replace('_', ' ') + '...'}

@@ -5,6 +5,7 @@ import Details from '../screens/Details';
 import TopWriter from '../screens/TopWriter';
 import Popular from '../screens/Popular';
 import PostArticle from '../screens/PostArticle';
+import Search from '../screens/Search';
 
 const Stack = createNativeStackNavigator();
 const ArticleStack = () => {
@@ -16,6 +17,7 @@ const ArticleStack = () => {
       <Stack.Screen name="Details" component={Details} />
       <Stack.Screen name="Writer" component={TopWriter} />
       <Stack.Screen name="Popular" component={Popular} />
+      <Stack.Screen name="Search" component={Search} />
       <Stack.Screen
         name="PostArticle"
         component={PostArticle}

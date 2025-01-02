@@ -1,4 +1,4 @@
-import React, {memo, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Image,
   StyleSheet,
@@ -7,6 +7,7 @@ import {
   View,
   ScrollView,
   FlatList,
+  SectionList,
 } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {font} from '../constants/font';
@@ -15,41 +16,6 @@ import {addFollowing, removeFollowing} from '../redux/slices/followingSlice';
 import axios from 'axios';
 import {baseUrl} from '../../db/IP';
 import User from '../customs/User';
-
-const Item = memo(({item, isFollowed, toggleFollow, index}) => {
-  return (
-    <View style={styles.personList} key={index}>
-      <View style={styles.personDetails}>
-        <Image
-          source={{uri: item?.image}}
-          style={styles.image}
-          resizeMode="cover"
-        />
-        <View style={styles.textContainer}>
-          <Text style={styles.username} numberOfLines={1}>
-            {item?.username || 'Unknown'}
-          </Text>
-          <Text style={styles.handle}>@{item?.username || 'unknown'}</Text>
-        </View>
-      </View>
-      <TouchableOpacity
-        style={[
-          styles.followButton,
-          {backgroundColor: isFollowed ? '#a1614b' : 'white'},
-        ]}
-        onPress={toggleFollow}
-        activeOpacity={0.8}>
-        <Text
-          style={[
-            styles.followText,
-            {color: isFollowed ? '#fff' : 'chocolate'},
-          ]}>
-          {isFollowed ? 'Following' : 'Follow'}
-        </Text>
-      </TouchableOpacity>
-    </View>
-  );
-});
 
 export default function Following({navigation, route}) {
   const dispatch = useDispatch();
@@ -60,7 +26,7 @@ export default function Following({navigation, route}) {
   // For Fetching authors
   useEffect(() => {
     const getRandomUser = async () => {
-      const results = await axios.get('https://randomuser.me/api/?results=200');
+      const results = await axios.get('https://randomuser.me/api/?results=2');
       setAuthors(results.data.results);
     };
     getRandomUser();
@@ -98,50 +64,41 @@ export default function Following({navigation, route}) {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        onPress={() => navigation.goBack()}
-        style={styles.goBackButton}>
-        <AntDesign name="arrowleft" size={24} />
-      </TouchableOpacity>
-      <Text style={styles.title}>People you followed! </Text>
+      <View style={{paddingHorizontal: 14}}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.goBackButton}>
+          <AntDesign name="arrowleft" size={24} />
+        </TouchableOpacity>
+        <Text style={styles.title}>People you followed! </Text>
+      </View>
       <View style={{flex: 1}}>
-        <ScrollView
+        <SectionList
+          sections={[
+            {title: 'Following', data: following},
+            {title: 'Suggested for you', data: author},
+          ]}
+          keyExtractor={(item, index) => item?.login?.uuid || index.toString()}
+          renderSectionHeader={({section: {title}}) => (
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionHeaderText}>{title}</Text>
+            </View>
+          )}
+          renderItem={({item, index, section}) => (
+            <User
+              item={item}
+              token={token}
+              navigation={navigation}
+              isFollowed={
+                section.title === 'Following' ||
+                following.some(f => f?.login?.uuid === item?.login?.uuid)
+              }
+              toggleFollow={() => toggleFollow(item)}
+              index={index}
+            />
+          )}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.contentContainerStyle}>
-          {/* Following List */}
-          {following?.map((item, index) => {
-            return (
-              <User
-                token={token}
-                navigation={navigation}
-                item={item}
-                index={index}
-                key={index}
-              />
-            );
-          })}
-          <View style={styles.suggested}>
-            <Text style={styles.suggestedText}>Suggested for you</Text>
-          </View>
-          {/* Suggested List */}
-          <FlatList
-            data={author}
-            showsVerticalScrollIndicator={false}
-            keyExtractor={item => item?.login?.uuid}
-            renderItem={({item, index}) => {
-              return (
-                <Item
-                  item={item}
-                  key={index}
-                  isFollowed={following.some(
-                    f => f?.login?.uuid === item?.login?.uuid,
-                  )}
-                  toggleFollow={() => toggleFollow(item)}
-                />
-              );
-            }}
-          />
-        </ScrollView>
+        />
       </View>
     </View>
   );
@@ -149,7 +106,6 @@ export default function Following({navigation, route}) {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 14,
     backgroundColor: '#fff',
     flex: 1,
   },
@@ -214,5 +170,13 @@ const styles = StyleSheet.create({
     fontFamily: font.sm_bold,
     fontSize: 16,
     color: '#666',
+  },
+  sectionHeader: {
+    paddingHorizontal: 14,
+    paddingVertical: 5,
+  },
+  sectionHeaderText: {
+    fontFamily: font.sm_bold,
+    fontSize: 18,
   },
 });

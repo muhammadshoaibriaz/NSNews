@@ -7,6 +7,7 @@ import {useSelector} from 'react-redux';
 import axios from 'axios';
 import {baseUrl, onFollowing} from '../../db/IP';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import {fetchArticles} from '../../db/funtionalDatabase';
 
 export default function UserProfile({navigation, route}) {
   const [following, setFollowing] = useState(false);
@@ -17,15 +18,9 @@ export default function UserProfile({navigation, route}) {
   const user = item;
 
   // console.log('userInfo', item);
-
-  // useEffect(() => {
-  //   getUserDetails();
-  // }, []);
-
   const followUser = async () => {
     try {
-      let u = await onFollowing(userId, token);
-      console.log(u);
+      await onFollowing(userId, token);
     } catch (error) {
       console.log('Error while following user', error);
     }
@@ -55,21 +50,13 @@ export default function UserProfile({navigation, route}) {
   }, []);
 
   const [articles, setArticles] = useState([]);
-
   useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        const response = await axios.get(
-          `${baseUrl}/api/register/${userId}/articles`,
-        );
-        setArticles(response.data.articles);
-        console.log(response.data);
-      } catch (error) {
-        console.error('Error fetching articles', error);
-      }
+    const getArticle = async () => {
+      const response = await fetchArticles(userId);
+      setArticles(response.articles);
+      // console.log('response', response.articles);
     };
-
-    fetchArticles();
+    getArticle();
   }, []);
 
   const randomNumber = Math.floor(Math.random() * 999);
@@ -99,7 +86,9 @@ export default function UserProfile({navigation, route}) {
                 ? 'Shabii'
                 : item?.username.slice(0, 15).replace('_', ' ') + '...'}
             </Text>
-            <Text style={styles.userHandle}>@{'shabii' + randomNumber}</Text>
+            <Text style={styles.userHandle}>
+              @{item?.username + randomNumber}
+            </Text>
           </View>
         </View>
         <TouchableOpacity
@@ -156,14 +145,6 @@ const StatItem = ({label, value, onPress, style}) => (
     onPress={onPress}>
     <Text style={styles.statValue}>{value}</Text>
     <Text style={styles.statLabel}>{label}</Text>
-  </TouchableOpacity>
-);
-
-const TabItem = ({title, isActive, onPress}) => (
-  <TouchableOpacity style={styles.tabItem} onPress={onPress}>
-    <Text style={[styles.tabText, {color: isActive ? '#a1614b' : '#333'}]}>
-      {title}
-    </Text>
   </TouchableOpacity>
 );
 

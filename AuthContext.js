@@ -1,51 +1,18 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+class Animal {
+  speak() {
+    console.log('Animal makes a sound');
+  }
+}
 
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
+class Dog extends Animal {
+  // Overriding the speak() method of Animal class
+  speak() {
+    console.log('Dog barks');
+  }
+}
 
-const AuthContext = createContext();
-export const useAuth = () => useContext(AuthContext);
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  useEffect(() => {
-    const loadUser = async () => {
-      const token = await AsyncStorage.getItem("token");
-      if (token) {
-        try {
-          const response = await axios.get(
-            "http://your-backend-url/authenticate",
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
-          setUser(response.data.user);
-        } catch (error) {
-          console.error(error);
-        }
-      }
-    };
-    loadUser();
-  }, []);
-  const login = async (username, password) => {
-    try {
-      const response = await axios.post("http://your-backend-url/login", {
-        username,
-        password,
-      });
-      await AsyncStorage.setItem("token", response.data.token);
-      setUser(response.data.user);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const logout = async () => {
-    await AsyncStorage.removeItem("token");
-    setUser(null);
-  };
+const animal = new Animal();
+animal.speak();
 
-  return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
+const dog = new Dog();
+dog.speak();

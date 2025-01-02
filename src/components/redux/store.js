@@ -7,6 +7,7 @@ import {persistReducer, persistStore} from 'redux-persist';
 import bookmarkSlice from './slices/bookMarkSlice';
 import followingSlice from './slices/followingSlice';
 import loginSlice from './slices/loginSlice';
+import articleSlice from './slices/articleSlice';
 
 const persistConfig = {
   key: 'root',
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
   bookmark: bookmarkSlice.reducer,
   following: followingSlice.reducer,
   login: loginSlice.reducer,
+  article: articleSlice.reducer,
 });
 
 const persistReducers = persistReducer(persistConfig, rootReducer);

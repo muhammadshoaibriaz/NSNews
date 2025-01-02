@@ -1,4 +1,5 @@
 export const baseUrl = 'https://sb-news-api-production.up.railway.app';
+// export const baseUrl = 'http://192.168.250.21:3000';
 import axios from 'axios';
 
 // Function to toggle follow/unfollow

@@ -6,6 +6,7 @@ import BookMark from '../customs/BookMark';
 import Webview from '../screens/Webview';
 import Follower from '../screens/Follower';
 import Following from '../screens/Following';
+import UserProfile from '../screens/UserProfile';
 
 const Stack = createNativeStackNavigator();
 const ProfileStack = () => {
@@ -19,6 +20,7 @@ const ProfileStack = () => {
       <Stack.Screen name="WebView" component={Webview} />
       <Stack.Screen name="Follower" component={Follower} />
       <Stack.Screen name="Following" component={Following} />
+      <Stack.Screen name="UserProfile" component={UserProfile} />
     </Stack.Navigator>
   );
 };

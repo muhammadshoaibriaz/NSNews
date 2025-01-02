@@ -35,7 +35,7 @@ export default function CardView({onPress, item, route, onIconPress}) {
         </TouchableOpacity>
         <View style={styles.imageContainer}>
           <Image
-            source={item?.image_url}
+            source={{uri: item?.imageUrl}}
             style={styles.blogImage}
             resizeMode="cover"
           />
@@ -43,7 +43,7 @@ export default function CardView({onPress, item, route, onIconPress}) {
 
         {/* Content and Author Information */}
         <View style={styles.contentContainer}>
-          <Text style={styles.sourceText}>{item?.channel_name}</Text>
+          <Text style={styles.sourceText}>{item?.category}</Text>
           <Text style={styles.contentText} numberOfLines={2}>
             {item?.title}
           </Text>
@@ -51,8 +51,11 @@ export default function CardView({onPress, item, route, onIconPress}) {
           {/* Author Info and More Options */}
           <View style={styles.infoRow}>
             <View style={styles.authorContainer}>
-              <Image source={item?.author_image} style={styles.authorImage} />
-              <Text style={styles.authorText}>{item?.author}</Text>
+              <Image
+                source={{uri: item?.authorImage}}
+                style={styles.authorImage}
+              />
+              <Text style={styles.authorText}>{item?.authorName}</Text>
             </View>
             <Menu
               visible={visible}
@@ -122,6 +125,7 @@ const styles = StyleSheet.create({
     fontFamily: font.medium,
     opacity: 0.6,
     marginTop: 8,
+    textTransform: 'capitalize',
   },
   contentText: {
     fontSize: 14,

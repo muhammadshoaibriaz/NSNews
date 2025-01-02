@@ -8,7 +8,6 @@ import {
   Alert,
 } from 'react-native';
 import {CheckBox} from 'react-native-elements';
-// import {Checkbox} from 'react-native-paper';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {font} from '../constants/font';

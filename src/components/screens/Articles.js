@@ -1,5 +1,12 @@
 import React, {useState} from 'react';
-import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {ListBulletIcon, Squares2X2Icon} from 'react-native-heroicons/outline';
 import ListView from '../customs/ListView';
 import {font} from '../constants/font';
@@ -9,6 +16,7 @@ import {baseUrl} from '../../db/IP';
 
 export default function Articles({navigation, articles, userDetails, token}) {
   const [isGridView, setIsGridView] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const onLongPress = async postId => {
     try {
       const response = await axios.delete(`${baseUrl}/api/post/${postId}`, {
@@ -25,6 +33,16 @@ export default function Articles({navigation, articles, userDetails, token}) {
       console.log('Error deleting post', err.message);
     }
   };
+  const onRefresh = () => {
+    setRefreshing(true);
+    try {
+    } catch (error) {
+      console.log('Error while fetching user details');
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   return (
     <View style={{flex: 1}}>
       {/* Header */}
@@ -52,39 +70,60 @@ export default function Articles({navigation, articles, userDetails, token}) {
         style={{
           flex: 1,
           paddingHorizontal: 14,
+          // alignItems: 'center',
+          // justifyContent: 'center',
         }}>
-        <FlatList
-          data={articles}
-          removeClippedSubviews={false}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            flexDirection: isGridView ? 'row' : 'column',
-            flexWrap: isGridView ? 'wrap' : 'nowrap',
-            justifyContent: isGridView ? 'space-between' : 'flex-start',
-            paddingBottom: 10,
-          }}
-          renderItem={({item, index}) => {
-            return (
-              <View>
-                {!isGridView ? (
-                  <ListView
-                    key={index}
-                    item={item}
-                    onLongPress={() => onLongPress(item?._id)}
-                    userDetails={userDetails}
-                    onPress={() => navigation.navigate('Details', {item})}
-                  />
-                ) : (
-                  <CardView
-                    key={'CardView'}
-                    item={item}
-                    onPress={() => navigation.navigate('Details', {item})}
-                  />
-                )}
-              </View>
-            );
-          }}
-        />
+        {articles?.length < 1 ? (
+          <Text
+            style={{
+              textAlign: 'center',
+              fontFamily: font.medium,
+              bottom: 20,
+              fontSize: 20,
+            }}>
+            No articles found!
+          </Text>
+        ) : (
+          <FlatList
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={['red', 'green', 'blue']}
+              />
+            }
+            data={articles}
+            removeClippedSubviews={false}
+            contentContainerStyle={{
+              flexDirection: isGridView ? 'row' : 'column',
+              flexWrap: isGridView ? 'wrap' : 'nowrap',
+              justifyContent: isGridView ? 'space-between' : 'flex-start',
+              paddingBottom: 10,
+            }}
+            renderItem={({item, index}) => {
+              return (
+                <View style={{flex: 1}}>
+                  {!isGridView ? (
+                    <ListView
+                      key={index}
+                      item={item}
+                      onLongPress={() => onLongPress(item?._id)}
+                      userDetails={userDetails}
+                      onPress={() => navigation.navigate('Details', {item})}
+                    />
+                  ) : (
+                    <CardView
+                      key={'CardView'}
+                      item={item}
+                      onPress={() => navigation.navigate('Details', {item})}
+                    />
+                  )}
+                </View>
+              );
+            }}
+          />
+        )}
       </View>
     </View>
   );
@@ -116,5 +155,10 @@ const styles = StyleSheet.create({
   listContainer: {
     paddingHorizontal: 14,
     paddingBottom: 60,
+  },
+  noItemContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

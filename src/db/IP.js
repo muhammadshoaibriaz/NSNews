@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 // export const baseUrl = 'https://sb-news-api-production.up.railway.app';
 export const baseUrl = 'http://192.168.100.4:3000';
+=======
+export const baseUrl = 'https://sb-news-api-production.up.railway.app';
+// export const baseUrl = 'http://192.168.250.21:3000';
+>>>>>>> dd5a9b754587640e9588837826846a27ae6b2a28
 import axios from 'axios';
 export const onFollowing = async (userId, token) => {
   try {

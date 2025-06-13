@@ -7,7 +7,10 @@ import axios from 'axios';
 import {baseUrl, onFollowing} from '../../db/IP';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {fetchArticles} from '../../db/funtionalDatabase';
+<<<<<<< HEAD
 import {fetchUserData} from '../redux/slices/profileSlice';
+=======
+>>>>>>> dd5a9b754587640e9588837826846a27ae6b2a28
 
 export default function UserProfile({navigation, route}) {
   const [following, setFollowing] = useState(false);
@@ -16,8 +19,14 @@ export default function UserProfile({navigation, route}) {
   const {item} = route?.params;
   const userId = item?._id;
   const token = userInfo?.token;
+<<<<<<< HEAD
   const profile = item;
 
+=======
+  const user = item;
+
+  // console.log('userInfo', item);
+>>>>>>> dd5a9b754587640e9588837826846a27ae6b2a28
   const followUser = async () => {
     try {
       await onFollowing(userId, token);

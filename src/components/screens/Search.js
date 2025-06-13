@@ -114,7 +114,11 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+<<<<<<< HEAD
     marginTop: 40,
+=======
+    marginTop: 10,
+>>>>>>> dd5a9b754587640e9588837826846a27ae6b2a28
   },
   backBtn: {
     width: 24,

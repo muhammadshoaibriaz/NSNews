@@ -19,7 +19,11 @@ import {font} from '../constants/font';
 import {useFocusEffect} from '@react-navigation/native';
 import axios from 'axios';
 import {baseUrl} from '../../db/IP';
+<<<<<<< HEAD
 import {useDispatch, useSelector} from 'react-redux';
+=======
+import {useDispatch} from 'react-redux';
+>>>>>>> dd5a9b754587640e9588837826846a27ae6b2a28
 import {getArticlesSuccess} from '../redux/slices/articleSlice';
 import {getRecommendedNews} from '../../db/funtionalDatabase';
 

@@ -1,6 +1,9 @@
 import React, {useState} from 'react';
 import {
+<<<<<<< HEAD
   Alert,
+=======
+>>>>>>> dd5a9b754587640e9588837826846a27ae6b2a28
   FlatList,
   RefreshControl,
   StyleSheet,
@@ -19,10 +22,13 @@ import {setLogin} from '../redux/slices/loginSlice';
 export default function Articles({navigation, articles, userDetails, token}) {
   const [isGridView, setIsGridView] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+<<<<<<< HEAD
   const userInfo = useSelector(state => state?.login.user);
   const user = userInfo?.user;
   const dispatch = useDispatch();
 
+=======
+>>>>>>> dd5a9b754587640e9588837826846a27ae6b2a28
   const onLongPress = async postId => {
     try {
       const response = await axios.delete(`${baseUrl}/api/post/${postId}`, {
@@ -40,6 +46,7 @@ export default function Articles({navigation, articles, userDetails, token}) {
       console.log('Error deleting post', err.message);
     }
   };
+<<<<<<< HEAD
   const onRefresh = async () => {
     setRefreshing(true);
     try {
@@ -50,6 +57,11 @@ export default function Articles({navigation, articles, userDetails, token}) {
       });
       console.log('response', response.data);
       dispatch(setLogin(response.data));
+=======
+  const onRefresh = () => {
+    setRefreshing(true);
+    try {
+>>>>>>> dd5a9b754587640e9588837826846a27ae6b2a28
     } catch (error) {
       console.log('Error while fetching user details');
     } finally {
@@ -84,6 +96,8 @@ export default function Articles({navigation, articles, userDetails, token}) {
         style={{
           flex: 1,
           paddingHorizontal: 14,
+          // alignItems: 'center',
+          // justifyContent: 'center',
         }}>
         {articles?.length < 1 ? (
           <Text
@@ -92,7 +106,10 @@ export default function Articles({navigation, articles, userDetails, token}) {
               fontFamily: font.medium,
               bottom: 20,
               fontSize: 20,
+<<<<<<< HEAD
               top: '40%',
+=======
+>>>>>>> dd5a9b754587640e9588837826846a27ae6b2a28
             }}>
             No articles found!
           </Text>
@@ -121,6 +138,7 @@ export default function Articles({navigation, articles, userDetails, token}) {
                     <ListView
                       key={index}
                       item={item}
+<<<<<<< HEAD
                       onLongPress={() =>
                         Alert.alert(
                           'Delete!',
@@ -139,6 +157,9 @@ export default function Articles({navigation, articles, userDetails, token}) {
                           ],
                         )
                       }
+=======
+                      onLongPress={() => onLongPress(item?._id)}
+>>>>>>> dd5a9b754587640e9588837826846a27ae6b2a28
                       userDetails={userDetails}
                       onPress={() => navigation.navigate('Details', {item})}
                     />

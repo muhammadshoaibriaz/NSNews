@@ -8,7 +8,10 @@ import {
   TextInput,
   ToastAndroid,
   Alert,
+<<<<<<< HEAD
   ActivityIndicator,
+=======
+>>>>>>> dd5a9b754587640e9588837826846a27ae6b2a28
 } from 'react-native';
 import {Snackbar} from 'react-native-paper';
 
@@ -21,10 +24,15 @@ import {baseUrl} from '../../db/IP';
 import {useDispatch, useSelector} from 'react-redux';
 import {Picker} from '@react-native-picker/picker';
 import {uploadImageToCloudinary} from '../../db/cloudinary';
+<<<<<<< HEAD
 import PushNotification from 'react-native-push-notification';
 import {MMKV} from 'react-native-mmkv';
 import Loading from '../customs/Loading';
 import {fetchNews, setArticles} from '../redux/slices/articleSlice';
+=======
+import messaging from '@react-native-firebase/messaging';
+import PushNotification from 'react-native-push-notification';
+>>>>>>> dd5a9b754587640e9588837826846a27ae6b2a28
 
 export default function PostArticle({route, navigation}) {
   const [description, setDescription] = useState('');
@@ -53,6 +61,61 @@ export default function PostArticle({route, navigation}) {
     });
   };
 
+<<<<<<< HEAD
+=======
+  useEffect(() => {
+    getToken();
+    // console.log('This is my fcm', fcmToken);
+  }, [fcmToken]);
+  const [fcmToken, setFcmToken] = useState(null);
+  const getToken = async () => {
+    try {
+      const tok = await messaging().getToken();
+      setFcmToken(tok);
+    } catch (error) {
+      console.error('Error getting token', error);
+    }
+  };
+
+  const sendPushNotification = async () => {
+    try {
+      const response = await fetch(`${baseUrl}/api/send-notification`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          token: fcmToken,
+          title: title,
+          body: description,
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        Alert.alert('Success', 'Notification sent successfully!');
+      } else {
+        Alert.alert('Error', data.error || 'Failed to send notification');
+      }
+    } catch (error) {
+      console.error('Error sending notification:', error);
+      Alert.alert('Error', 'Failed to send notification');
+    }
+  };
+
+  PushNotification.createChannel(
+    {
+      channelId: 'default-channel-id', // Must match the channelId used in localNotification
+      channelName: 'SBNews', // A readable name for the channel
+      importance: 4, // High importance
+      vibrate: true, // Vibrate the device for notifications
+      sound: 'default', // Set the sound to default (not silent)
+      showWhen: true, // Show the time of notification
+    },
+    created => console.log(`Channel created: ${created}`), // Logs if the channel was created
+  );
+
+>>>>>>> dd5a9b754587640e9588837826846a27ae6b2a28
   const submitPost = async () => {
     setLoading(true);
     if (!title || !description) {
@@ -83,6 +146,7 @@ export default function PostArticle({route, navigation}) {
       // console.log(response.data);
       dispatch(setArticles(response.data));
       setVisible(true);
+      sendPushNotification();
     } catch (err) {
       console.log('Error while submitting post', err.message);
     } finally {

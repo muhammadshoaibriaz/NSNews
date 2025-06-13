@@ -1,10 +1,13 @@
 import axios from 'axios';
 import {baseUrl} from './IP';
+<<<<<<< HEAD
 import {MMKV} from 'react-native-mmkv';
 import {Alert} from 'react-native';
 import PushNotification from 'react-native-push-notification';
 
 let storage = new MMKV();
+=======
+>>>>>>> dd5a9b754587640e9588837826846a27ae6b2a28
 
 export const fetchArticles = async userId => {
   try {
@@ -27,6 +30,7 @@ export const getRecommendedNews = async () => {
     console.log('Error while getting recommended news', error.message);
   }
 };
+<<<<<<< HEAD
 
 // console.log('token', token);
 export const sendPushNotification = async () => {
@@ -68,3 +72,5 @@ PushNotification.createChannel(
   },
   created => console.log(`Channel created: ${created}`), // Logs if the channel was created
 );
+=======
+>>>>>>> dd5a9b754587640e9588837826846a27ae6b2a28

@@ -8,7 +8,10 @@ import Webview from '../screens/Webview';
 import Follower from '../screens/Follower';
 import Following from '../screens/Following';
 import UserProfile from '../screens/UserProfile';
+<<<<<<< HEAD
 import StableDiffusion from '../../../StableDiffusion';
+=======
+>>>>>>> dd5a9b754587640e9588837826846a27ae6b2a28
 
 const Stack = createNativeStackNavigator();
 const ProfileStack = () => {
@@ -28,8 +31,11 @@ const ProfileStack = () => {
       <Stack.Screen name="Follower" component={Follower} />
       <Stack.Screen name="Following" component={Following} />
       <Stack.Screen name="UserProfile" component={UserProfile} />
+<<<<<<< HEAD
       <Stack.Screen name="EditProfile" component={EditProfile} />
       <Stack.Screen name="Stable" component={StableDiffusion} />
+=======
+>>>>>>> dd5a9b754587640e9588837826846a27ae6b2a28
     </Stack.Navigator>
   );
 };

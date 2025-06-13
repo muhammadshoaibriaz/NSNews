@@ -4,6 +4,11 @@ import {
   Text,
   TouchableOpacity,
   View,
+<<<<<<< HEAD
+=======
+  ScrollView,
+  FlatList,
+>>>>>>> dd5a9b754587640e9588837826846a27ae6b2a28
   SectionList,
 } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -13,7 +18,10 @@ import {addFollowing, removeFollowing} from '../redux/slices/followingSlice';
 import axios from 'axios';
 import {baseUrl} from '../../db/IP';
 import User from '../customs/User';
+<<<<<<< HEAD
 import Loading from '../customs/Loading';
+=======
+>>>>>>> dd5a9b754587640e9588837826846a27ae6b2a28
 
 export default function Following({navigation, route}) {
   const dispatch = useDispatch();
@@ -24,7 +32,11 @@ export default function Following({navigation, route}) {
   // For Fetching authors
   useEffect(() => {
     const getRandomUser = async () => {
+<<<<<<< HEAD
       const results = await axios.get('https://randomuser.me/api/?results=50');
+=======
+      const results = await axios.get('https://randomuser.me/api/?results=2');
+>>>>>>> dd5a9b754587640e9588837826846a27ae6b2a28
       setAuthors(results.data.results);
     };
     getRandomUser();
@@ -70,12 +82,20 @@ export default function Following({navigation, route}) {
 
   return (
     <View style={styles.container}>
+<<<<<<< HEAD
       <View style={{paddingHorizontal: 14, marginTop: 30}}>
+=======
+      <View style={{paddingHorizontal: 14}}>
+>>>>>>> dd5a9b754587640e9588837826846a27ae6b2a28
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.goBackButton}>
           <AntDesign name="arrowleft" size={24} />
         </TouchableOpacity>
+<<<<<<< HEAD
+=======
+        <Text style={styles.title}>People you followed! </Text>
+>>>>>>> dd5a9b754587640e9588837826846a27ae6b2a28
       </View>
       <View style={{flex: 1}}>
         <SectionList

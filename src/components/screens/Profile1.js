@@ -4,15 +4,21 @@ import Header from '../customs/Header';
 import About from './About';
 import Articles from './Articles';
 import {font} from '../constants/font';
+<<<<<<< HEAD
 import {useDispatch, useSelector} from 'react-redux';
 import {fetchArticles} from '../../db/funtionalDatabase';
 import {fetchUserData} from '../redux/slices/profileSlice';
+=======
+import {useSelector} from 'react-redux';
+import {fetchArticles} from '../../db/funtionalDatabase';
+>>>>>>> dd5a9b754587640e9588837826846a27ae6b2a28
 
 export default function Profile1({navigation}) {
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState(1);
   const [articles, setArticles] = useState([]);
   const userInfo = useSelector(state => state.login.user);
+<<<<<<< HEAD
 
   const {profile, loading, error} = useSelector(state => state.profile);
   const {user} = userInfo;
@@ -32,6 +38,22 @@ export default function Profile1({navigation}) {
     // console.log('results', results.articles);
   };
 
+=======
+  const [user] = useState(userInfo?.user);
+  const userId = user?._id;
+  // console.log(userId);
+  // console.log('userInfo', userInfo);
+
+  useEffect(() => {
+    const getArticle = async () => {
+      const results = await fetchArticles(userId);
+      // console.log('results', results.articles);
+      setArticles(results?.articles);
+    };
+    getArticle();
+  }, []);
+
+>>>>>>> dd5a9b754587640e9588837826846a27ae6b2a28
   // Render the selected component based on the active tab
   const renderContent = () => {
     return activeTab === 1 ? (
@@ -66,8 +88,13 @@ export default function Profile1({navigation}) {
             style={styles.profileImage}
           />
           <View style={styles.profileDetails}>
+<<<<<<< HEAD
             <Text style={styles.usernameText} onPress={getArticle}>
               {!profile?.username
+=======
+            <Text style={styles.usernameText} onPress={fetchArticles}>
+              {!user?.username
+>>>>>>> dd5a9b754587640e9588837826846a27ae6b2a28
                 ? 'Shabii🥀'
                 : profile?.username.slice(0, 15).replace('_', ' ') + '...'}
             </Text>

@@ -54,7 +54,10 @@ const User = React.memo(({item, index, navigation, token}) => {
   const handleFollow = async () => {
     try {
       await onFollowing(userId, token);
+<<<<<<< HEAD
       dispatch(fetchUserData());
+=======
+>>>>>>> dd5a9b754587640e9588837826846a27ae6b2a28
       setFollowing(!following);
     } catch (error) {
       console.error('Error handling follow action:', error.message);
@@ -78,7 +81,11 @@ const User = React.memo(({item, index, navigation, token}) => {
             </View>
           ) : (
             <Image
+<<<<<<< HEAD
               source={{uri: item.image || item?.picture?.medium}}
+=======
+              source={{uri: item.image || item?.picture?.thumbnail}}
+>>>>>>> dd5a9b754587640e9588837826846a27ae6b2a28
               style={styles.avatar}
             />
           )}

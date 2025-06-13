@@ -48,15 +48,13 @@ export default function ArticleCard({
 
 // Styles
 const styles = StyleSheet.create({
-  container: {
-    marginTop: SPACING,
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginHorizontal: SPACING,
     marginBottom: SPACING,
+    marginTop: 10,
   },
   title: {
     fontFamily: font.sm_bold,

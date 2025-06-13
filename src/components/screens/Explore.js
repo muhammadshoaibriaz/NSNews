@@ -1,7 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import {
-  Image,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -16,11 +14,11 @@ import Writers from './Writers';
 import {font} from '../constants/font';
 import axios from 'axios';
 import {baseUrl} from '../../db/IP';
+import {useSelector} from 'react-redux';
 
 export default function Explore({navigation}) {
-  const [allNews, setAllNews] = useState([]);
   const [byCategory, setByCategory] = useState([]);
-
+  const allNews = useSelector(state => state.article?.articles);
   const [active, setActive] = useState(0);
   const [writers, setWriters] = useState([]);
   const [query, setQuery] = useState('');
@@ -36,18 +34,8 @@ export default function Explore({navigation}) {
 
   useEffect(() => {
     getWriters();
-    getArticles();
   }, [active]);
 
-  const getArticles = async () => {
-    try {
-      const response = await axios.get(`${baseUrl}/api/posts`);
-      console.log(response.data);
-      setAllNews(response.data);
-    } catch (err) {
-      console.log('Error while getting articles', err);
-    }
-  };
   const getArticlesByCategory = async category => {
     try {
       const response = await axios.get(`${baseUrl}/api/posts`, {
@@ -100,6 +88,7 @@ export default function Explore({navigation}) {
         icon2={'ellipsis-horizontal-circle-outline'}
         navigation={navigation}
         key={'explore-header'}
+        onPress2={() => navigation.navigate('Search')}
       />
       <View style={styles.wrapperContainer}>
         <ScrollView
@@ -116,8 +105,7 @@ export default function Explore({navigation}) {
           </View>
           <ScrollView
             horizontal
-            style={{marginTop: 8}}
-            contentContainerStyle={{paddingHorizontal: 14}}
+            contentContainerStyle={{paddingHorizontal: 14, paddingVertical: 14}}
             showsHorizontalScrollIndicator={false}>
             {[
               'All',
@@ -134,7 +122,13 @@ export default function Explore({navigation}) {
                 activeOpacity={0.8}
                 style={[
                   styles.categoryBtn,
-                  {backgroundColor: active === index ? '#2196F3' : '#f6f6f6'},
+                  {
+                    borderWidth: 4,
+                    elevation: 20,
+                    backgroundColor: active === index ? '#2196F3' : '#f6f6f6',
+                    borderColor: active === index ? '#2196F320' : '#fff',
+                    shadowColor: active === index ? '#2196F3' : '#fff',
+                  },
                 ]}>
                 <Text
                   style={[

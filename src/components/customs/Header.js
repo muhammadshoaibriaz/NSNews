@@ -49,6 +49,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 14,
     paddingVertical: 10,
+    marginTop: 24,
   },
   titleContainer: {
     flexDirection: 'row',

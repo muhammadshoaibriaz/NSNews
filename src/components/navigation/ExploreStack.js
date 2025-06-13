@@ -8,13 +8,20 @@ import Discover from '../screens/Discover';
 import UserProfile from '../screens/UserProfile';
 import Follower from '../screens/Follower';
 import Following from '../screens/Following';
+import Search from '../screens/Search';
 
 const Stack = createNativeStackNavigator();
 const DiscoverStack = () => {
   return (
     <Stack.Navigator
       initialRouteName="Explore"
-      screenOptions={{headerShown: false, animation: 'slide_from_right'}}>
+      screenOptions={{
+        headerShown: false,
+        animation: 'slide_from_right',
+        statusBarTranslucent: true,
+        statusBarStyle: 'dark',
+        statusBarBackgroundColor: 'transparent',
+      }}>
       <Stack.Screen name="Explore" component={Explore} />
       <Stack.Screen name="Details" component={Details} />
       <Stack.Screen name="Writer" component={TopWriter} />

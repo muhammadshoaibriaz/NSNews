@@ -8,6 +8,7 @@ import {
   View,
   TextInput,
   ToastAndroid,
+  ActivityIndicator,
 } from 'react-native';
 
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -16,6 +17,7 @@ import {launchImageLibrary} from 'react-native-image-picker';
 import {font} from '../constants/font';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {uploadImageToCloudinary} from '../../db/cloudinary';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function Profile({route, navigation}) {
   const {username} = route.params;
@@ -26,6 +28,9 @@ export default function Profile({route, navigation}) {
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
   const [articles, setArticles] = useState([]);
+  const [visible, setVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [date, setDate] = useState('');
 
   const handleFieldChange = setter => value => setter(value);
 
@@ -39,13 +44,14 @@ export default function Profile({route, navigation}) {
   // const userData = {};
 
   const onSubmit = async () => {
+    setLoading(true);
     try {
       let avatarUrl = null;
       if (image) {
         avatarUrl = await uploadImageToCloudinary(image);
         console.log('Avatar URL:', avatarUrl);
       }
-      if (!phone.trim() || !gender.trim() || !dateOfBirth.trim()) {
+      if (!phone.trim() || !gender.trim()) {
         ToastAndroid.show('Please fill all fields', ToastAndroid.LONG);
         return;
       } else {
@@ -60,6 +66,19 @@ export default function Profile({route, navigation}) {
       }
     } catch (err) {
       console.log('Error while submitting request', err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleDateChange = (event, selectedDate) => {
+    setVisible(false);
+    if (selectedDate) {
+      // Format the date as MM/DD/YYYY
+      const formattedDate = new Intl.DateTimeFormat('en-US').format(
+        selectedDate,
+      );
+      setDate(formattedDate);
+      console.log('Selected Date:', formattedDate);
     }
   };
 
@@ -118,15 +137,27 @@ export default function Profile({route, navigation}) {
       />
       <InputField
         label="Date of Birth"
-        placeholder="MM/DD/YYYY"
-        value={dateOfBirth}
-        onChangeText={handleFieldChange(setDateOfBirth)}
+        placeholder={'MM/DD/YYYY'}
+        value={date}
         keyboardType="decimal-pad"
+        onFocus={() => setVisible(true)}
       />
+      {visible && (
+        <DateTimePicker
+          value={new Date()}
+          mode="date"
+          display="default"
+          onChange={handleDateChange}
+        />
+      )}
 
       {/* Submit Button */}
       <TouchableOpacity style={styles.submitButton} onPress={onSubmit}>
-        <Text style={styles.submitButtonText}>Continue</Text>
+        {loading ? (
+          <ActivityIndicator size={20} color={'white'} />
+        ) : (
+          <Text style={styles.submitButtonText}>Continue</Text>
+        )}
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -138,6 +169,7 @@ const InputField = ({
   value,
   onChangeText,
   editable,
+  onFocus,
   keyboardType = 'default',
 }) => (
   <View style={styles.inputFieldContainer}>
@@ -150,6 +182,7 @@ const InputField = ({
       onChangeText={onChangeText}
       keyboardType={keyboardType}
       editable={editable}
+      onFocus={onFocus}
     />
   </View>
 );
@@ -223,11 +256,11 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     marginTop: 30,
-    height: 45,
+    height: 50,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#a1614b',
-    borderRadius: 30,
+    borderRadius: 6,
   },
   submitButtonText: {
     color: '#fff',

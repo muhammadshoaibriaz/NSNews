@@ -23,23 +23,26 @@ import {addBookMark} from '../redux/slices/bookMarkSlice';
 import axios from 'axios';
 import {baseUrl, onFollowing} from '../../db/IP';
 import {FAB} from 'react-native-elements';
+import {fetchUserData} from '../redux/slices/loginSlice';
 
 export default function Details({route, navigation}) {
   const {item} = route.params;
+  const postUrl = `http://localhost:3000/api/post/${item?._id}`;
   const dispatch = useDispatch();
   const addToBookmark = items => {
     dispatch(addBookMark(items));
   };
+  // console.log('item', item);
 
   // console.log(item?.postedBy);
-  const userInfo = useSelector(user => user.login.user);
-  const token = userInfo?.token;
-  // console.log(token);
+  const userInfo = useSelector(state => state.login);
+  const {token} = userInfo?.user;
 
-  // console.log('followId' + followId + 'userId' + userId);
+  // console.log('followId', userInfo?.user?.user?._id);
   const [following, setFollowing] = useState(false);
-  // console.log(userInfo);
   const onFollow = async () => {
+    setFollowing(!following);
+    dispatch(fetchUserData());
     await onFollowing(item?.postedBy, token);
   };
 
@@ -60,17 +63,16 @@ export default function Details({route, navigation}) {
           response.data.following,
         );
         setFollowing(isFollowing);
-        // console.log(isFollowing);
       } catch (error) {
         console.log('Error fetching user details', error.message);
       }
     };
-
     fetchFollowStatus();
   }, []);
 
   const [liked, setLiked] = useState(false);
   const likePost = async () => {
+    setLiked(!liked);
     try {
       const response = await axios.patch(
         `${baseUrl}/api/post/${item._id}/like-unlike`,
@@ -81,25 +83,28 @@ export default function Details({route, navigation}) {
           },
         },
       );
-      console.log(response.data);
-      setLiked(!liked);
+      like();
+      // console.log(response.data);
       // dispatch(addLike(response.data));
     } catch (error) {
       console.log('Error liking post', error.message);
     }
   };
 
+  const like = async () => {
+    try {
+      const response = await axios.post(`${baseUrl}/api/notifications/like`, {
+        senderId: userInfo?.user?.user?._id,
+        receiverId: item?.postedBy,
+        postId: item?._id,
+      });
+      // console.log(response.data);
+    } catch (err) {
+      console.log('Error liking post', err);
+    }
+  };
+
   const scrollY = useRef(new Animated.Value(0)).current;
-  const backgroundColor = scrollY.interpolate({
-    inputRange: [0, 50],
-    outputRange: ['transparent', '#fff'],
-    extrapolate: 'clamp',
-  });
-  const elevation = scrollY.interpolate({
-    inputRange: [0, 500],
-    outputRange: [0, 20],
-    extrapolate: 'clamp',
-  });
   const [height, setHeight] = useState(0);
   useEffect(() => {
     let handleScroller = scrollY.addListener(({value}) => {
@@ -125,49 +130,41 @@ export default function Details({route, navigation}) {
 
   return (
     <View style={styles.container}>
-      <StatusBar translucent={false} backgroundColor={'#a1614b90'} />
       {/* Header */}
-      <Animated.View
-        style={[styles.header, {backgroundColor: backgroundColor, elevation}]}>
+      <Animated.View style={[styles.header]}>
         <TouchableOpacity
           style={[
             styles.iconBtn,
             {alignItems: 'flex-start', backgroundColor: 'transparent'},
           ]}
           onPress={() => navigation.goBack()}>
-          <ArrowLeftIcon color={height < 40 ? '#fff' : 'chocolate'} size={20} />
+          <ArrowLeftIcon color={'#fff'} size={20} />
         </TouchableOpacity>
         <View style={styles.headerIcons}>
           <TouchableOpacity
             style={styles.iconBtn}
             onPress={() => addToBookmark(item)}>
-            <BookmarkIcon
-              size={20}
-              color={height < 40 ? '#fff' : 'chocolate'}
-            />
+            <BookmarkIcon size={20} color={'#fff'} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.iconBtn}
             onPress={() => {
               Share.share({
-                title: item?.title,
-                message: item?.description,
-                url: item?.authorImage,
+                title: 'Share Post',
+                message: `Check out this post: ${item?.title}\n${postUrl}`,
+                url: postUrl,
               });
             }}>
             <PaperAirplaneIcon
               style={styles.airplaneIcon}
               size={20}
-              color={height < 80 ? '#fff' : 'chocolate'}
+              color={'#fff'}
             />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.iconBtn}
             onPress={() => navigation.navigate('Notify')}>
-            <EllipsisHorizontalCircleIcon
-              size={20}
-              color={height < 80 ? '#fff' : 'chocolate'}
-            />
+            <EllipsisHorizontalCircleIcon size={20} color={'#fff'} />
           </TouchableOpacity>
         </View>
       </Animated.View>
@@ -253,7 +250,7 @@ const styles = StyleSheet.create({
     height: 50,
     zIndex: 11,
     width: '100%',
-    backgroundColor: 'white',
+    marginTop: 30,
     position: 'absolute',
   },
   headerIcons: {
@@ -273,10 +270,17 @@ const styles = StyleSheet.create({
   airplaneIcon: {
     transform: [{rotate: '-35deg'}],
   },
-  imageContainer: {},
+  imageContainer: {
+    position: 'relative',
+    height: 300,
+    width: '100%',
+  },
   mainImage: {
     width: '100%',
     height: 340,
+    position: 'absolute',
+    top: 0,
+    bottom: 50,
   },
   title: {
     fontFamily: font.medium,
@@ -290,8 +294,6 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingHorizontal: 14,
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
     backgroundColor: 'white',
   },
   authorSection: {

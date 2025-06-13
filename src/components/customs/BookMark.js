@@ -104,6 +104,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: 8,
+    marginTop: 30,
   },
   headerLeft: {
     flexDirection: 'row',

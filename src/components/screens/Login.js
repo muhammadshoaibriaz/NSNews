@@ -8,7 +8,6 @@ import {
   Alert,
 } from 'react-native';
 import {CheckBox} from 'react-native-elements';
-// import {Checkbox} from 'react-native-paper';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {font} from '../constants/font';
@@ -18,6 +17,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useDispatch} from 'react-redux';
 import {setLogin} from '../redux/slices/loginSlice';
 import {ActivityIndicator} from 'react-native-paper';
+import {BackHandler} from 'react-native';
+import {fetchUserData, setProfile} from '../redux/slices/profileSlice';
 export default function Login({navigation}) {
   // State Variables
   const dispatch = useDispatch();
@@ -45,6 +46,7 @@ export default function Login({navigation}) {
       if (results.status === 200) {
         await AsyncStorage.setItem('token', data?.token);
         // console.log('token is', data.token);
+        dispatch(setProfile(fetchUserData()));
         dispatch(setLogin(data));
         navigation.navigate('TabNavigation', {data});
       }
@@ -82,7 +84,9 @@ export default function Login({navigation}) {
       {/* Back Button */}
       <TouchableOpacity
         style={styles.backButton}
-        onPress={() => navigation.goBack()}>
+        onPress={() => {
+          BackHandler.exitApp();
+        }}>
         <AntDesign name="arrowleft" size={22} />
       </TouchableOpacity>
 

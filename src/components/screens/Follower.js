@@ -7,14 +7,17 @@ import axios from 'axios';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import User from '../customs/User';
 import {useSelector} from 'react-redux';
+import Loading from '../customs/Loading';
 
 export default function Follower({route, navigation}) {
-  const {user} = route?.params;
+  const {profile} = route?.params;
   // console.log('route', user);
   const [followers, setFollowers] = useState([]);
+  const [loading, setLoading] = useState(false);
   // console.log('followers', followers);
-  const userId = user?._id;
+  const userId = profile?._id;
   useEffect(() => {
+    setLoading(true);
     const fetchFollowers = async () => {
       try {
         const response = await axios.get(
@@ -23,6 +26,8 @@ export default function Follower({route, navigation}) {
         setFollowers(response.data.followers);
       } catch (error) {
         console.error('Error fetching followers and following', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -31,30 +36,39 @@ export default function Follower({route, navigation}) {
 
   const userInfo = useSelector(user => user.login.user);
   const token = userInfo?.token;
+  if (loading) {
+    return <Loading />;
+  }
   return (
     <View style={styles.container}>
-      <View style={{paddingHorizontal: 14}}>
+      <View style={{paddingHorizontal: 14, marginTop: 30}}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.goBackButton}>
           <AntDesign name="arrowleft" size={24} />
         </TouchableOpacity>
-        <Text style={styles.title}>Follower! </Text>
+        <Text style={styles.title}>Followers! </Text>
       </View>
-      <FlatList
-        data={followers}
-        showsVerticalScrollIndicator={false}
-        renderItem={({item, index}) => {
-          return (
-            <User
-              token={token}
-              navigation={navigation}
-              item={item}
-              index={index}
-            />
-          );
-        }}
-      />
+      {followers?.length < 1 ? (
+        <View style={styles.wrapper}>
+          <Text style={styles.nofollowerText}>No followers yet!</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={followers}
+          showsVerticalScrollIndicator={false}
+          renderItem={({item, index}) => {
+            return (
+              <User
+                token={token}
+                navigation={navigation}
+                item={item}
+                index={index}
+              />
+            );
+          }}
+        />
+      )}
     </View>
   );
 }
@@ -147,5 +161,15 @@ const styles = StyleSheet.create({
     fontFamily: font.sm_bold,
     fontSize: 24,
     marginBottom: 10,
+  },
+  wrapper: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  nofollowerText: {
+    fontFamily: font.sm_bold,
+    fontSize: 18,
+    opacity: 0.5,
   },
 });

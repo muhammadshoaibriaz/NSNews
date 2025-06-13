@@ -18,8 +18,9 @@ import {useDispatch} from 'react-redux';
 import {addFollowing} from '../redux/slices/followingSlice';
 import axios from 'axios';
 import {baseUrl} from '../../db/IP';
-import LottieView from 'lottie-react-native';
-
+import messaging from '@react-native-firebase/messaging';
+import FastImage from 'react-native-fast-image';
+import {MMKV} from 'react-native-mmkv';
 const Item = memo(({item, index, dispatch}) => {
   const [follow, setFollow] = useState(false);
   const handleFollow = () => setFollow(!follow);
@@ -66,6 +67,7 @@ export default function Discover({route, navigation}) {
   const [preferences, setPreferences] = useState([]);
   const [loaded, setLoaded] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [fcmToken, setFcmToken] = useState(null);
   const dispatch = useDispatch();
   data
     .filter(val => val.selected === true)
@@ -79,7 +81,21 @@ export default function Discover({route, navigation}) {
     };
     getRandomUser();
   }, []);
-  // console.log(preferences);
+
+  const storage = new MMKV();
+
+  useEffect(() => {
+    getToken();
+  }, [fcmToken]);
+  const getToken = async () => {
+    try {
+      const tok = await messaging().getToken();
+      storage.set('fcmToken', tok);
+      setFcmToken(tok);
+    } catch (error) {
+      console.error('Error getting token', error);
+    }
+  };
 
   const handleContinue = () => {
     setVisible(false);
@@ -92,10 +108,16 @@ export default function Discover({route, navigation}) {
       const results = await axios.post(`${baseUrl}/api/register`, {
         ...route?.params,
         preferences,
+        fcmToken: fcmToken,
+        bio: 'Developed and designed by Shabii',
       });
       if (results.status === 200) {
         Alert.alert('User exist!', 'User Already exist.');
       } else {
+        Alert.alert(
+          'Alert!',
+          'Confirmation email sent to your inbox. If you did not confirm the email link you cannot login.',
+        );
         setLoaded(true);
         setVisible(true);
         await AsyncStorage.setItem('token', 'token passed');
@@ -110,6 +132,9 @@ export default function Discover({route, navigation}) {
       setLoading(false);
     }
   };
+
+  // let token = storage.getString('fcmToken');
+  // console.log('token', token);
 
   return (
     <View style={styles.container}>
@@ -151,7 +176,7 @@ export default function Discover({route, navigation}) {
             preparing for you.
           </Text>
           {loaded ? (
-            <LottieView
+            <FastImage
               style={styles.loadingImage}
               source={{
                 uri: 'https://i.gifer.com/origin/e4/e439272bf16c2df6b43e480de9fb1810_w200.gif',
@@ -296,7 +321,7 @@ const styles = StyleSheet.create({
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 30,
+    borderRadius: 6,
     bottom: 10,
   },
   finishText: {

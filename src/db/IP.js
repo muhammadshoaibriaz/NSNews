@@ -1,7 +1,6 @@
-export const baseUrl = 'https://sb-news-api-production.up.railway.app';
+// export const baseUrl = 'https://sb-news-api-production.up.railway.app';
+export const baseUrl = 'http://192.168.100.4:3000';
 import axios from 'axios';
-
-// Function to toggle follow/unfollow
 export const onFollowing = async (userId, token) => {
   try {
     const response = await axios.patch(
@@ -14,14 +13,13 @@ export const onFollowing = async (userId, token) => {
       },
     );
     console.log('Follow/Unfollow response:', response.data);
-    return response.data; // Optional: Return the response if needed
+    return response.data; // Return the response
   } catch (error) {
     console.error('Error while following/unfollowing user:', error.message);
     throw error;
   }
 };
 
-// Function to fetch follow status
 export const fetchFollowStatus = async (userId, token) => {
   try {
     const response = await axios.get(`${baseUrl}/api/register`, {

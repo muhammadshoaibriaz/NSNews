@@ -10,7 +10,6 @@ import {
   FlatList,
 } from 'react-native';
 import {
-  BookmarkIcon,
   ListBulletIcon,
   Squares2X2Icon,
   MagnifyingGlassIcon,
@@ -19,60 +18,10 @@ import {
 import {font} from '../constants/font';
 import ListView from '../customs/ListView';
 import CardView from '../customs/CardView';
+import {useSelector} from 'react-redux';
 
 export default function Search({navigation}) {
-  const [data, setData] = useState([
-    {
-      title: 'Apple Unveils New MacBook Pro with M3 Chip',
-      description:
-        'Apple has announced the launch of its newest MacBook Pro models powered by the M3 chip, promising groundbreaking performance and efficiency. The new lineup includes updated display technologies, improved battery life, and a sleek design, aiming to set a new standard in computing technology. The M3 chip leverages advanced silicon architecture, offering up to 30% faster speeds than its predecessor. Apple continues to lead the market with innovation, appealing to professionals and creatives globally.',
-      image_url: require('../../../assets/images/dell.jpg'),
-      published_time: '2 hours ago',
-      author: 'John Doe',
-      channel_name: 'Apple Newsroom',
-      author_image: require('../../../assets/images/tolgaa.png'),
-    },
-    {
-      title: 'Google Launches AI-Powered Search Features',
-      description:
-        "Google has rolled out its latest AI-enhanced search capabilities designed to offer users more intuitive and personalized results. The new features utilize machine learning algorithms to better understand complex queries and deliver contextually relevant answers. This marks another step in Google's journey to revolutionize the search experience through cutting-edge artificial intelligence technologies.",
-      image_url: require('../../../assets/images/Images.png'),
-      published_time: '5 hours ago',
-      author: 'Jane Smith',
-      channel_name: 'Google Blog',
-      author_image: require('../../../assets/images/tolgaa.png'),
-    },
-    {
-      title: "Tesla's Cybertruck Hits the Market",
-      description:
-        "After years of anticipation, Tesla's revolutionary Cybertruck is finally available for purchase. Featuring an unconventional design and advanced autonomous driving capabilities, the Cybertruck has already generated significant buzz in the automotive industry. Tesla promises unmatched durability and efficiency, making this electric truck a game-changer in sustainable transportation.",
-      image_url: require('../../../assets/images/image.jpg'),
-      published_time: '10 minutes ago',
-      author: 'Alex Johnson',
-      channel_name: 'Tesla Blog',
-      author_image: require('../../../assets/images/tolgaa.png'),
-    },
-    {
-      title: 'Meta Develops AI to Combat Fake News',
-      description:
-        "Meta has unveiled an AI system aimed at combating misinformation across its platforms, including Facebook and Instagram. The tool uses advanced neural networks to identify and flag false content in real-time, ensuring users are exposed to accurate information. This initiative is part of Meta's ongoing effort to enhance the credibility of online media.",
-      image_url: require('../../../assets/images/dell.jpg'),
-      published_time: '1 hour ago',
-      author: 'Emily Davis',
-      channel_name: 'Meta Newsroom',
-      author_image: require('../../../assets/images/tolgaa.png'),
-    },
-    {
-      title: 'Microsoft Azure Expands Quantum Computing Services',
-      description:
-        'Microsoft has announced the expansion of its quantum computing services within Azure. The update includes new tools for developers to simulate and test quantum algorithms. These advancements aim to make quantum computing accessible to a broader audience, driving innovation across industries such as healthcare, finance, and logistics.',
-      image_url: require('../../../assets/images/Images.png'),
-      published_time: '3 hours ago',
-      author: 'Michael Lee',
-      channel_name: 'Microsoft Blog',
-      author_image: require('../../../assets/images/tolgaa.png'),
-    },
-  ]);
+  const data = useSelector(state => state.article?.articles);
   const [isGridView, setIsGridView] = useState(false);
   const [fileteredData, setFilteredData] = useState([]);
   const [query, setQuery] = useState('');
@@ -165,6 +114,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginTop: 40,
   },
   backBtn: {
     width: 24,

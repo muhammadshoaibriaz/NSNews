@@ -13,7 +13,6 @@ class MainActivity : ReactActivity() {
    rendering of the component.
    */
   override fun getMainComponentName(): String = "SBNews"
-
   /**
    * Returns the instance of the [ReactActivityDelegate]. We use [DefaultReactActivityDelegate]
    * which allows you to enable New Architecture with a single boolean flags [fabricEnabled]

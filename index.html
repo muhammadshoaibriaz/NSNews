@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Music Player UI</title>
+	<style>
+		@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+		body {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			min-height: 100vh;
+			background-color: #26282b;
+			font-family: 'Montserrat', serif;
+		}
+
+		.phone {
+			width: 376px;
+			height: 768px;
+			border-radius: 50px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			border: 2px solid #393e43;
+			background: linear-gradient(to bottom, #353b3f, #181a1d);
+		}
+
+		.header {
+			min-height: 12vh;
+			width: 90%;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+		}
+
+		.header .icon-btn {
+			width: 45px;
+			height: 45px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: 50%;
+			border: 2px solid #393e43;
+			background: #26282b;
+			cursor: pointer;
+			box-shadow: -5px -5px 10px #3f454d, 5px 5px 10px #2a2e33;
+		}
+
+		.header .icon-btn img {
+			width: 40%;
+			filter: brightness(100%) contrast(100%) invert(.6);
+			pointer-events: none;
+		}
+
+		.header h1 {
+			font-size: 14px;
+			color: #999;
+			font-weight: 600;
+			text-transform: uppercase;
+		}
+
+		.header h1::selection {
+			color: gold;
+			background-color: tomato;
+		}
+
+		.image {
+			width: 260px;
+			height: 260px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: 50%;
+			overflow: hidden;
+			border: 6px solid #111;
+			box-shadow: -15px -15px 50px #3f454d, 15px 15px 50px #181a1d;
+			margin-top: 20px;
+		}
+
+		.image img {
+			width: 100%;
+			height: 100%;
+			pointer-events: none;
+		}
+
+		.album {
+			margin-top: 30px;
+			text-align: center;
+		}
+
+		.album h1 {
+			color: #ddd;
+		}
+
+		.album p {
+			color: #999;
+		}
+
+		.album h1::selection,
+		p::selection {
+			color: gold;
+			background-color: tomato;
+		}
+
+		.progress-bar {
+			width: 85%;
+			height: 8px;
+			box-shadow: inset 1px 1px 1px #26282b, inset -1px -1px 2px #3f454d;
+			border-radius: 50px;
+			margin-top: 50px;
+			position: relative;
+		}
+
+		.progress {
+			width: 35%;
+			position: absolute;
+			left: 3px;
+			top: 0px;
+			height: 90%;
+			background: linear-gradient(to top right, tomato, gold);
+			border-radius: 50px;
+		}
+
+		.duration {
+			position: absolute;
+			bottom: 0px;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			width: 100%;
+			color: #999;
+		}
+
+		.btns {
+			width: 75%;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			margin-top: 50px;
+		}
+
+		.btns .icon-btn {
+			width: 65px;
+			height: 65px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: 50%;
+			cursor: pointer;
+			border: 3px solid #1b1e21;
+			box-shadow: -5px -5px 10px #23262b, 5px 5px 10px #1a1d20;
+			background: linear-gradient(to bottom right, #25282d, #1c1e20);
+		}
+
+		.btns .icon-btn img {
+			width: 40%;
+			filter: brightness(100%) contrast(100%) invert(.6);
+		}
+
+		.icon-btn-play {
+			width: 75px;
+			height: 75px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border: 3px solid #ec550d;
+			box-shadow: -5px -5px 10px #2e3239, 5px 5px 10px #1d2023;
+			background: linear-gradient(to top right, #cb2b11, #ec550d);
+			border-radius: 50%;
+			cursor: pointer;
+		}
+
+		.icon-btn-play img {
+			width: 40%;
+			filter: brightness(100%) contrast(100%) invert(1);
+		}
+
+		.wrapper {
+			width: 300px;
+			height: 300px;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="phone">
+		<div class="header">
+			<div class="icon-btn">
+				<img src="./assets/images/left-arrow.png" alt="">
+			</div>
+			<h1>Playing Now</h1>
+			<div class="icon-btn">
+				<img src="./assets/images/menu.png" alt="">
+			</div>
+		</div>
+		<div class="image">
+			<img src="./assets/images/Screen Shot 2025-02-02 at 9.29.13 PM.png" alt="">
+		</div>
+		<div class="album">
+			<h1>Low Life</h1>
+			<p>Future ft. The Weekend</p>
+		</div>
+		<div class="progress-bar">
+			<div class="duration">
+				<p>01:21</p>
+				<p>03:44</p>
+			</div>
+			<div class="progress"></div>
+		</div>
+		<div class="btns">
+			<div class="icon-btn">
+				<img src="./assets/images/previous.png" alt="">
+			</div>
+			<div class="icon-btn-play" id="play-pause">
+				<img src="./assets/images/pause.png" alt="">
+			</div>
+			<div class="icon-btn">
+				<img src="./assets/images/fast-forward.png" alt="">
+			</div>
+		</div>
+	</div>
+	<div class="wrapper"></div>
+
+	<script>
+		const wrapper = document.querySelector(".wrapper")
+		const play_pause = document.querySelector("play-pause")
+		const songs = ["./assets/audio/audio1.mp3", "./assets/audio/audio2.mp3", "./assets/audio/audio3.mp3", "./assets/audio/audio4.mp3"]
+		const audio = new Audio()
+		let current_audio = null;
+		songs.forEach((song, index) => {
+			const button = document.createElement("button")
+			button.textContent = `Play ${index + 1}`
+			wrapper.appendChild(button)
+			button.addEventListener("click", () => {
+				if (current_audio) {
+					current_audio.pause()
+					current_audio.currentTime = 0
+				}
+				current_audio = new Audio(song)
+				current_audio.play()
+			})
+		})
+	</script>
+</body>
+
+</html>

@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -19,12 +19,16 @@ import {font} from '../constants/font';
 import {useFocusEffect} from '@react-navigation/native';
 import axios from 'axios';
 import {baseUrl} from '../../db/IP';
+import {useDispatch, useSelector} from 'react-redux';
+import {getArticlesSuccess} from '../redux/slices/articleSlice';
+import {getRecommendedNews} from '../../db/funtionalDatabase';
 
 const ITEM_WIDTH = Dimensions.get('screen').width;
 const SPACING = 14;
 
-export default function Home({navigation, route}) {
+export default function Home({navigation}) {
   // State to store news articles
+  const dispatch = useDispatch();
   const [articles, setArticles] = useState([]);
   const [breakingNews, setBreakingNews] = useState([]);
   useFocusEffect(
@@ -48,15 +52,18 @@ export default function Home({navigation, route}) {
   useEffect(() => {
     getArticles();
     fetchBreakingNews();
+    getRecommended();
   }, []);
   const getArticles = async () => {
     try {
       const response = await axios.get(`${baseUrl}/api/posts`);
       setArticles(response.data);
+      dispatch(getArticlesSuccess(response.data));
     } catch (error) {
       console.log('Error while getting articles', error);
     }
   };
+
   const fetchBreakingNews = async () => {
     try {
       const response = await axios.get(`${baseUrl}/api/breaking-news`);
@@ -66,6 +73,12 @@ export default function Home({navigation, route}) {
       console.log('Error while getting articles', error);
     }
   };
+
+  const getRecommended = async () => {
+    const response = await getRecommendedNews();
+    console.log('response', response);
+  };
+
   // const refreshing = useRef();
   const [refreshing, setRefreshing] = useState(false);
   const onRefresh = () => {
@@ -79,6 +92,7 @@ export default function Home({navigation, route}) {
       setRefreshing(false);
     }
   };
+
   if (!articles || !breakingNews) {
     return (
       <View style={styles.activityIndicator}>
@@ -114,7 +128,9 @@ export default function Home({navigation, route}) {
           contentContainerStyle={{paddingBottom: 60}}>
           {/* Breaking News Section */}
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Breaking News</Text>
+            <Text style={styles.sectionTitle} onPress={getArticles}>
+              Breaking News
+            </Text>
             <TouchableOpacity>
               <Text style={styles.viewAllText}>View all</Text>
             </TouchableOpacity>
@@ -153,7 +169,6 @@ export default function Home({navigation, route}) {
               );
             }}
           />
-
           {/* Recommendation Article Cards */}
           <ArticleCard
             data={articles}
@@ -208,6 +223,7 @@ const styles = StyleSheet.create({
     fontFamily: font.medium,
     color: '#eee',
     fontSize: 13,
+    textTransform: 'capitalize',
   },
   cardTopic: {
     fontFamily: font.sm_bold,

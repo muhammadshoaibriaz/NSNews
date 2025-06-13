@@ -1,5 +1,11 @@
 import React, {useEffect, useState} from 'react';
-import {FlatList, StyleSheet, Text, View} from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import {ArrowLeftIcon} from 'react-native-heroicons/outline';
 import axios from 'axios';
 import {baseUrl} from '../../db/IP';
@@ -34,20 +40,26 @@ export default function TopWriter({navigation}) {
       </View>
 
       {/* Writers List */}
-      <FlatList
-        data={writers}
-        renderItem={({item, index}) => (
-          <User
-            token={token}
-            navigation={navigation}
-            item={item}
-            index={index}
-          />
-        )}
-        contentContainerStyle={styles.flatListContent}
-        showsVerticalScrollIndicator={false}
-        keyExtractor={(item, index) => `${item?.username}-${index}`}
-      />
+      {!writers ? (
+        <View style={styles.indicator}>
+          <ActivityIndicator size={30} color={'chocolate'} />
+        </View>
+      ) : (
+        <FlatList
+          data={writers}
+          renderItem={({item, index}) => (
+            <User
+              token={token}
+              navigation={navigation}
+              item={item}
+              index={index}
+            />
+          )}
+          contentContainerStyle={styles.flatListContent}
+          showsVerticalScrollIndicator={false}
+          keyExtractor={(item, index) => `${item?.username}-${index}`}
+        />
+      )}
     </View>
   );
 }
@@ -62,6 +74,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
     paddingHorizontal: 14,
+    marginTop: 30,
   },
   headerTitle: {
     fontSize: 20,
@@ -120,5 +133,10 @@ const styles = StyleSheet.create({
     fontFamily: font.medium,
     fontSize: 12,
     color: '#fff',
+  },
+  indicator: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import {
   BackspaceIcon,
+  BookmarkIcon,
   EllipsisVerticalIcon,
 } from 'react-native-heroicons/outline';
 import {font} from '../constants/font';
@@ -89,6 +90,7 @@ export default function ListView({
                   closeMenu();
                 }}
                 title="Share"
+                style={{borderBottomColor: '#ddd', borderBottomWidth: 0.5}}
               />
               <Menu.Item
                 onPress={() => {
@@ -96,6 +98,7 @@ export default function ListView({
                   closeMenu();
                 }}
                 title="Bookmark"
+                style={{borderBottomColor: '#ddd', borderBottomWidth: 0.5}}
               />
               <Menu.Item
                 onPress={() => {

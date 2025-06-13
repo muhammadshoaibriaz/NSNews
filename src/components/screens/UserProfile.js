@@ -2,30 +2,25 @@ import React, {useEffect, useState} from 'react';
 import {StyleSheet, View, Image, Text, TouchableOpacity} from 'react-native';
 import Articles from './Articles';
 import {font} from '../constants/font';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import axios from 'axios';
 import {baseUrl, onFollowing} from '../../db/IP';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import {fetchArticles} from '../../db/funtionalDatabase';
+import {fetchUserData} from '../redux/slices/profileSlice';
 
 export default function UserProfile({navigation, route}) {
   const [following, setFollowing] = useState(false);
   const userInfo = useSelector(state => state.login.user);
+  // console.log('userInfos', userInfo);
   const {item} = route?.params;
   const userId = item?._id;
   const token = userInfo?.token;
-  const user = item;
-
-  // console.log('userInfo', item);
-
-  // useEffect(() => {
-  //   getUserDetails();
-  // }, []);
+  const profile = item;
 
   const followUser = async () => {
     try {
-      let u = await onFollowing(userId, token);
-      console.log(u);
+      await onFollowing(userId, token);
     } catch (error) {
       console.log('Error while following user', error);
     }
@@ -55,21 +50,13 @@ export default function UserProfile({navigation, route}) {
   }, []);
 
   const [articles, setArticles] = useState([]);
-
   useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        const response = await axios.get(
-          `${baseUrl}/api/register/${userId}/articles`,
-        );
-        setArticles(response.data.articles);
-        console.log(response.data);
-      } catch (error) {
-        console.error('Error fetching articles', error);
-      }
+    const getArticle = async () => {
+      const response = await fetchArticles(userId);
+      setArticles(response.articles);
+      // console.log('response', response.articles);
     };
-
-    fetchArticles();
+    getArticle();
   }, []);
 
   const randomNumber = Math.floor(Math.random() * 999);
@@ -99,7 +86,9 @@ export default function UserProfile({navigation, route}) {
                 ? 'Shabii'
                 : item?.username.slice(0, 15).replace('_', ' ') + '...'}
             </Text>
-            <Text style={styles.userHandle}>@{'shabii' + randomNumber}</Text>
+            <Text style={styles.userHandle}>
+              @{item?.username + randomNumber}
+            </Text>
           </View>
         </View>
         <TouchableOpacity
@@ -128,14 +117,14 @@ export default function UserProfile({navigation, route}) {
       <View style={styles.statsContainer}>
         <StatItem label="Articles" value={item?.articles?.length} />
         <StatItem
-          onPress={() => navigation.navigate('Following', {user})}
+          onPress={() => navigation.navigate('Following', {profile})}
           label="Following"
           value={`${item?.following?.length}`}
         />
         <StatItem
           label="Followers"
           value={item?.followers?.length}
-          onPress={() => navigation.navigate('Follower', {user})}
+          onPress={() => navigation.navigate('Follower', {profile})}
           style={{borderRightWidth: 0}}
         />
       </View>
@@ -156,14 +145,6 @@ const StatItem = ({label, value, onPress, style}) => (
     onPress={onPress}>
     <Text style={styles.statValue}>{value}</Text>
     <Text style={styles.statLabel}>{label}</Text>
-  </TouchableOpacity>
-);
-
-const TabItem = ({title, isActive, onPress}) => (
-  <TouchableOpacity style={styles.tabItem} onPress={onPress}>
-    <Text style={[styles.tabText, {color: isActive ? '#a1614b' : '#333'}]}>
-      {title}
-    </Text>
   </TouchableOpacity>
 );
 
@@ -265,7 +246,7 @@ const styles = StyleSheet.create({
   backButton: {
     width: 30,
     height: 30,
-    marginTop: 10,
+    marginTop: 40,
     justifyContent: 'center',
     alignItems: 'center',
     left: 14,

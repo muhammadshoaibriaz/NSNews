@@ -11,7 +11,13 @@ const HomeStack = () => {
   return (
     <Stack.Navigator
       initialRouteName="HomePage"
-      screenOptions={{headerShown: false, animation: 'slide_from_right'}}>
+      screenOptions={{
+        headerShown: false,
+        animation: 'slide_from_right',
+        statusBarTranslucent: true,
+        statusBarStyle: 'dark',
+        statusBarBackgroundColor: 'transparent',
+      }}>
       <Stack.Screen name="HomePage" component={Home} />
       <Stack.Screen
         name="Details"

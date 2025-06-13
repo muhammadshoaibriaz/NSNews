@@ -4,59 +4,39 @@ import Header from '../customs/Header';
 import About from './About';
 import Articles from './Articles';
 import {font} from '../constants/font';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useSelector} from 'react-redux';
-import axios from 'axios';
-import {baseUrl} from '../../db/IP';
+import {useDispatch, useSelector} from 'react-redux';
+import {fetchArticles} from '../../db/funtionalDatabase';
+import {fetchUserData} from '../redux/slices/profileSlice';
 
 export default function Profile1({navigation}) {
+  const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState(1);
   const [articles, setArticles] = useState([]);
   const userInfo = useSelector(state => state.login.user);
-  const [user, setUser] = useState(userInfo?.user);
-  const userId = user?._id;
-  // console.log(userId);
-  console.log('userInfo', userInfo);
+
+  const {profile, loading, error} = useSelector(state => state.profile);
+  const {user} = userInfo;
+  console.log('userInfos', profile);
 
   useEffect(() => {
-    getUserDetails();
+    getArticle();
   }, []);
 
-  const getUserDetails = async () => {
-    const token = await AsyncStorage.getItem('token');
-    try {
-      const response = await axios.get(`${baseUrl}/api/register`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      let data = response.data;
-      setUser(data);
-    } catch (error) {
-      console.log('error getting user info', error.message);
-    }
+  useEffect(() => {
+    dispatch(fetchUserData()); // Fetch user data when the screen loads
+  }, [dispatch]);
+
+  const getArticle = async () => {
+    const results = await fetchArticles(user?._id);
+    setArticles(results?.articles);
+    // console.log('results', results.articles);
   };
 
-  useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        const response = await axios.get(
-          `${baseUrl}/api/register/${userId}/articles`,
-        );
-        setArticles(response.data.articles);
-        console.log(response.data);
-      } catch (error) {
-        console.error('Error fetching articles', error);
-      }
-    };
-
-    fetchArticles();
-  }, []);
   // Render the selected component based on the active tab
   const renderContent = () => {
     return activeTab === 1 ? (
       <Articles
-        token={userInfo?.token}
+        token={user?.token}
         navigation={navigation}
         articles={articles}
       />
@@ -79,38 +59,43 @@ export default function Profile1({navigation}) {
         <View style={styles.profileInfo}>
           <Image
             source={
-              user?.image !== ''
-                ? {uri: user?.image}
+              profile?.image !== ''
+                ? {uri: profile?.image}
                 : require('../../../assets/images/avatar_3.jpg')
             }
             style={styles.profileImage}
           />
           <View style={styles.profileDetails}>
-            <Text style={styles.usernameText}>
-              {!user?.username
+            <Text style={styles.usernameText} onPress={getArticle}>
+              {!profile?.username
                 ? 'Shabii🥀'
-                : user?.username.slice(0, 15).replace('_', ' ') + '...'}
+                : profile?.username.slice(0, 15).replace('_', ' ') + '...'}
             </Text>
-            <Text style={styles.userHandle}>@{user?.username}</Text>
+            <Text style={styles.userHandle}>@{profile?.username}</Text>
           </View>
         </View>
-        <TouchableOpacity style={styles.followButton}>
+        <TouchableOpacity
+          style={styles.followButton}
+          onPress={() => {
+            // navigation.navigate('EditProfile', {user});
+            navigation.navigate('Stable');
+          }}>
           <Text style={styles.followButtonText}>Edit Profile</Text>
         </TouchableOpacity>
       </View>
 
       {/* Stats Section */}
       <View style={styles.statsContainer}>
-        <StatItem label="Articles" value={user?.articles?.length} />
+        <StatItem label="Articles" value={profile?.articles?.length} />
         <StatItem
-          onPress={() => navigation.navigate('Following', {user})}
+          onPress={() => navigation.navigate('Following', {profile})}
           label="Following"
-          value={`${user?.following?.length}`}
+          value={`${profile?.following?.length}`}
         />
         <StatItem
           label="Followers"
-          value={user?.followers?.length}
-          onPress={() => navigation.navigate('Follower', {user})}
+          value={profile?.followers?.length}
+          onPress={() => navigation.navigate('Follower', {profile})}
           style={{borderRightWidth: 0}}
         />
       </View>

@@ -1,14 +1,28 @@
 import React, {useState} from 'react';
-import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  Alert,
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {ListBulletIcon, Squares2X2Icon} from 'react-native-heroicons/outline';
 import ListView from '../customs/ListView';
 import {font} from '../constants/font';
 import CardView from '../customs/CardView';
 import axios from 'axios';
 import {baseUrl} from '../../db/IP';
-
+import {useDispatch, useSelector} from 'react-redux';
+import {setLogin} from '../redux/slices/loginSlice';
 export default function Articles({navigation, articles, userDetails, token}) {
   const [isGridView, setIsGridView] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const userInfo = useSelector(state => state?.login.user);
+  const user = userInfo?.user;
+  const dispatch = useDispatch();
+
   const onLongPress = async postId => {
     try {
       const response = await axios.delete(`${baseUrl}/api/post/${postId}`, {
@@ -17,6 +31,7 @@ export default function Articles({navigation, articles, userDetails, token}) {
         },
       });
       if (response.status === 200) {
+        onRefresh();
         console.log('Post deleted successfully');
       } else {
         console.log('Failed to delete post');
@@ -25,6 +40,23 @@ export default function Articles({navigation, articles, userDetails, token}) {
       console.log('Error deleting post', err.message);
     }
   };
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      const response = await axios.get(`${baseUrl}/api/register/${user?._id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log('response', response.data);
+      dispatch(setLogin(response.data));
+    } catch (error) {
+      console.log('Error while fetching user details');
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   return (
     <View style={{flex: 1}}>
       {/* Header */}
@@ -53,38 +85,75 @@ export default function Articles({navigation, articles, userDetails, token}) {
           flex: 1,
           paddingHorizontal: 14,
         }}>
-        <FlatList
-          data={articles}
-          removeClippedSubviews={false}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            flexDirection: isGridView ? 'row' : 'column',
-            flexWrap: isGridView ? 'wrap' : 'nowrap',
-            justifyContent: isGridView ? 'space-between' : 'flex-start',
-            paddingBottom: 10,
-          }}
-          renderItem={({item, index}) => {
-            return (
-              <View>
-                {!isGridView ? (
-                  <ListView
-                    key={index}
-                    item={item}
-                    onLongPress={() => onLongPress(item?._id)}
-                    userDetails={userDetails}
-                    onPress={() => navigation.navigate('Details', {item})}
-                  />
-                ) : (
-                  <CardView
-                    key={'CardView'}
-                    item={item}
-                    onPress={() => navigation.navigate('Details', {item})}
-                  />
-                )}
-              </View>
-            );
-          }}
-        />
+        {articles?.length < 1 ? (
+          <Text
+            style={{
+              textAlign: 'center',
+              fontFamily: font.medium,
+              bottom: 20,
+              fontSize: 20,
+              top: '40%',
+            }}>
+            No articles found!
+          </Text>
+        ) : (
+          <FlatList
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={['red', 'green', 'blue']}
+              />
+            }
+            data={articles}
+            removeClippedSubviews={false}
+            contentContainerStyle={{
+              flexDirection: isGridView ? 'row' : 'column',
+              flexWrap: isGridView ? 'wrap' : 'nowrap',
+              justifyContent: isGridView ? 'space-between' : 'flex-start',
+              paddingBottom: 10,
+            }}
+            renderItem={({item, index}) => {
+              return (
+                <View style={{flex: 1}}>
+                  {!isGridView ? (
+                    <ListView
+                      key={index}
+                      item={item}
+                      onLongPress={() =>
+                        Alert.alert(
+                          'Delete!',
+                          'Are you sure you want to delete this post!',
+                          [
+                            {
+                              text: 'cancel',
+                              onPress: () => {},
+                            },
+                            {
+                              text: 'delete',
+                              onPress: () => {
+                                onLongPress(item?._id);
+                              },
+                            },
+                          ],
+                        )
+                      }
+                      userDetails={userDetails}
+                      onPress={() => navigation.navigate('Details', {item})}
+                    />
+                  ) : (
+                    <CardView
+                      key={'CardView'}
+                      item={item}
+                      onPress={() => navigation.navigate('Details', {item})}
+                    />
+                  )}
+                </View>
+              );
+            }}
+          />
+        )}
       </View>
     </View>
   );
@@ -116,5 +185,10 @@ const styles = StyleSheet.create({
   listContainer: {
     paddingHorizontal: 14,
     paddingBottom: 60,
+  },
+  noItemContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
